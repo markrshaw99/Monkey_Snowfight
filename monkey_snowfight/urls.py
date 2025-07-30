@@ -9,6 +9,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', welcome, name='welcome'),
+    path('chat/', include('monkeychat.urls')),
+    path('play/', include('monkeygame.urls')),
     path('profile/', include('monkeyusers.urls')),
     path('@<username>/', profile_view, name="profile"),
 ]

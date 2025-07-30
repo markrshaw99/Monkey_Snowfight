@@ -1,0 +1,13 @@
+<div x-data="{ modal_open: false }">
+    <div x-show="modal_open" class="fixed inset-0 bg-black bg-opacity-50 z-50"></div>
+    <div x-show="modal_open" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-lg font-semibold mb-4">Leave Chat Room</h2>
+            <p>Are you sure you want to leave this chat room?</p>
+            <div class="mt-4">
+                <a href="{% url 'chatroom-leave' chat_group.group_name %}" class="bg-red-500 text-white px-4 py-2 rounded-lg">Leave</a>
+                <button @click="modal_open = false" class="bg-gray-300 px-4 py-2 rounded-lg">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
