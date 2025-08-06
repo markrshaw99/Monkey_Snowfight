@@ -4,10 +4,12 @@
 
 <h1>New Group Chat</h1>
 
-<form method="post">
+<form method="post" class="form">
     {% csrf_token %}
     {{ form }}
-    <button class="mt-2" type="submit">Create Group Chat</button>
+    <div class="form__actions">
+        <button class="btn" type="submit">Create Group Chat</button>
+    </div>
 </form>
 
 
