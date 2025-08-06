@@ -3,6 +3,9 @@ from django.db.models.signals import post_save, pre_save
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from .models import Profile
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.contrib import messages
+from allauth.account.signals import user_signed_up
 
 @receiver(post_save, sender=User)       
 def user_postsave(sender, instance, created, **kwargs):
@@ -35,3 +38,13 @@ def user_postsave(sender, instance, created, **kwargs):
 def user_presave(sender, instance, **kwargs):
     if instance.username:
         instance.username = instance.username.lower()
+
+# Try both Django and allauth signals
+@receiver(user_logged_in)
+def django_login_message(sender, request, user, **kwargs):
+    messages.success(request, f"Welcome back, {user.profile.name}!")
+
+@receiver(user_logged_out)
+def django_logout_message(sender, request, user, **kwargs):
+    if user:
+        messages.info(request, "You have been logged out successfully.")        
