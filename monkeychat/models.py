@@ -6,7 +6,7 @@ from PIL import Image
 from cloudinary.models import CloudinaryField
 
 
-class ChatGroup(models.Model):
+class ChatRoom(models.Model):
     group_name = models.CharField(max_length=128, unique=True, default=shortuuid.uuid)
     groupchat_name = models.CharField(max_length=128, blank=True, null=True)
     admin = models.ForeignKey(User, related_name='groupchats', blank=True, null=True, on_delete=models.SET_NULL)
@@ -18,8 +18,8 @@ class ChatGroup(models.Model):
         return self.group_name
     
 
-class GroupMessage(models.Model):
-    group = models.ForeignKey(ChatGroup, related_name='chat_messages', on_delete=models.CASCADE)
+class ChatMessage(models.Model):
+    group = models.ForeignKey(ChatRoom, related_name='chat_messages', on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     body = models.CharField(max_length=300, blank=True, null=True)
     file = CloudinaryField('file', resource_type='auto', blank=True, null=True)

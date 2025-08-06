@@ -1,0 +1,40 @@
+{% extends 'layouts/blank.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'monkeygame/css/game.css' %}">
+<canvas id="gameCanvas"></canvas>
+
+<script src="{% static 'monkeygame/js/game-canvas.js' %}"></script>
+<script src="{% static 'monkeygame/js/asset-loader.js' %}"></script>
+<script>
+// Initialize the game
+const gameCanvas = new GameCanvas('gameCanvas');
+const assets = new AssetLoader();
+
+// Example: Load and draw assets
+async function initGame() {
+    // Load your game assets here
+    // await assets.loadImage('monkey', '{% static "monkeygame/images/monkey.png" %}');
+    
+    // Start your game loop
+    gameLoop();
+}
+
+function gameLoop() {
+    const ctx = gameCanvas.ctx;
+    
+    // Clear canvas (always use 600x400 coordinates)
+    ctx.clearRect(0, 0, 600, 400);
+    
+    // Draw your game here using 600x400 coordinates
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(250, 175, 100, 50); // Example rectangle
+    
+    requestAnimationFrame(gameLoop);
+}
+
+// Start the game
+initGame();
+</script>
+{% endblock %}

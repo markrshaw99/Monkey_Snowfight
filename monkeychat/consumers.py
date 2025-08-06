@@ -9,7 +9,7 @@ class ChatroomConsumer(WebsocketConsumer):
     def connect(self):
         self.user = self.scope["user"]
         self.chatroom_name = self.scope["url_route"]["kwargs"]["chatroom_name"]
-        self.chatroom = get_object_or_404(ChatGroup, group_name=self.chatroom_name)
+        self.chatroom = get_object_or_404(ChatRoom, group_name=self.chatroom_name)
 
         async_to_sync(self.channel_layer.group_add)(
             self.chatroom_name,
@@ -38,7 +38,7 @@ class ChatroomConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         body = text_data_json["body"]
 
-        message = GroupMessage.objects.create(
+        message = ChatMessage.objects.create(
             body = body,
             author = self.user,
             group = self.chatroom
@@ -59,7 +59,7 @@ class ChatroomConsumer(WebsocketConsumer):
 
     def message_handler(self, event):
         message_id = event['message_id']
-        message = GroupMessage.objects.get(id=message_id)
+        message = ChatMessage.objects.get(id=message_id)
         context = {
             'message': message,
             'user' : self.user,
@@ -79,7 +79,7 @@ class ChatroomConsumer(WebsocketConsumer):
     def online_count_handler(self, event):
         online_count = event['online_count']
 
-        chat_messages = ChatGroup.objects.get(group_name=self.chatroom_name).chat_messages.all()[:30]
+        chat_messages = ChatRoom.objects.get(group_name=self.chatroom_name).chat_messages.all()[:30]
         author_ids = set([message.author.id for message in chat_messages])
         users = User.objects.filter(id__in=author_ids)
 
@@ -96,7 +96,7 @@ class OnlineStatusConsumer(WebsocketConsumer):
     def connect(self):
         self.user = self.scope['user']
         self.group_name = 'online-status'
-        self.group = get_object_or_404(ChatGroup, group_name=self.group_name)
+        self.group = get_object_or_404(ChatRoom, group_name=self.group_name)
 
         if self.user not in self.group.users_online.all():
             self.group.users_online.add(self.user)
@@ -131,7 +131,7 @@ class OnlineStatusConsumer(WebsocketConsumer):
 
     def online_status_handler(self, event):
         online_users = self.group.users_online.exclude(id=self.user.id)
-        public_chat_users = ChatGroup.objects.get(group_name='public-chat').users_online.exclude(id=self.user.id)
+        public_chat_users = ChatRoom.objects.get(group_name='public-chat').users_online.exclude(id=self.user.id)
         
         my_chats = self.user.chat_groups.all()
         private_chats_with_users = [chat for chat in my_chats.filter(is_private=True) if chat.users_online.exclude(id=self.user.id)]

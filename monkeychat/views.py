@@ -12,7 +12,7 @@ from .forms import *
 
 @login_required
 def chat_view(request, chatroom_name='public-chat'):
-    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     chat_messages = chat_group.chat_messages.all()[:30]  # Get the last 30 messages
     form = ChatMessageCreateForm()
 
@@ -70,7 +70,7 @@ def get_or_create_chatroom(request, username):
                 chatroom = room
                 break
     if not chatroom:
-        chatroom = ChatGroup.objects.create(is_private=True)
+        chatroom = ChatRoom.objects.create(is_private=True)
         chatroom.members.add(other_user, request.user)
 
     return redirect('chatroom', chatroom_name=chatroom.group_name)
@@ -95,7 +95,7 @@ def create_groupchat(request):
 
 @login_required
 def chatroom_edit_view(request, chatroom_name):
-    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     if request.user != chat_group.admin:
         raise Http404("You do not have permission to edit this chat room.")
     
@@ -122,7 +122,7 @@ def chatroom_edit_view(request, chatroom_name):
 
 @login_required
 def chatroom_delete_view(request, chatroom_name):
-    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     if request.user != chat_group.admin:
         raise Http404("You do not have permission to delete this chat room.")
     
@@ -135,7 +135,7 @@ def chatroom_delete_view(request, chatroom_name):
 
 @login_required
 def chatroom_leave_view(request, chatroom_name):
-    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     if request.user not in chat_group.members.all():
         raise Http404("You are not a member of this chat room.")
     
@@ -146,11 +146,11 @@ def chatroom_leave_view(request, chatroom_name):
 
 
 def chat_file_upload(request, chatroom_name):
-    chat_group = get_object_or_404(ChatGroup, group_name=chatroom_name)
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     
     if request.htmx and request.FILES:
         file = request.FILES['file']
-        message = GroupMessage.objects.create(
+        message = ChatMessage.objects.create(
             file=file,
             author=request.user,
             group=chat_group,

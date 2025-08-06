@@ -4,7 +4,7 @@ from .models import *
 
 class ChatMessageCreateForm(ModelForm):
     class Meta:
-        model = GroupMessage
+        model = ChatMessage
         fields = ['body']
         widgets = {
             'body': forms.TextInput(attrs={'placeholder': 'Add a message...', 'class': 'p-4 text-black', 'maxlength' : '300', 'autofocus': True}),
@@ -13,7 +13,7 @@ class ChatMessageCreateForm(ModelForm):
 
 class NewGroupForm(ModelForm):
     class Meta:
-        model = ChatGroup
+        model = ChatRoom
         fields = ['groupchat_name']
         widgets = {
             'groupchat_name': forms.TextInput(attrs={
@@ -26,7 +26,7 @@ class NewGroupForm(ModelForm):
 
 class ChatRoomEditForm(ModelForm):
     class Meta:
-        model = ChatGroup
+        model = ChatRoom
         fields = ['groupchat_name']
         widgets = {
             'groupchat_name': forms.TextInput(attrs={
