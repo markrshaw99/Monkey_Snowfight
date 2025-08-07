@@ -145,6 +145,18 @@ def chatroom_leave_view(request, chatroom_name):
         return redirect('home')
 
 
+@login_required
+def load_older_messages(request, chatroom_name):
+    chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
+    offset = int(request.GET.get('offset', 0))
+    older_messages = chat_group.chat_messages.all()[offset:offset+20]
+    
+    context = {
+        'chat_messages': older_messages,
+        'user': request.user
+    }
+    return render(request, 'monkeychat/partials/older_messages.html', context)
+
 def chat_file_upload(request, chatroom_name):
     chat_group = get_object_or_404(ChatRoom, group_name=chatroom_name)
     

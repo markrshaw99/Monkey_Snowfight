@@ -86,9 +86,23 @@
 
 {% block javascript %}
 <script>
+    let wasAtBottom = true; // Track if user was at bottom before new content
+    
+    function isAtBottom() {
+        const container = document.getElementById('chat_container');
+        const threshold = 50;
+        return container.scrollTop + container.clientHeight >= container.scrollHeight - threshold;
+    }
+    
     function scrollToBottom() {
         const container = document.getElementById('chat_container');
         container.scrollTop = container.scrollHeight;
+    }
+    
+    function conditionalScrollToBottom() {
+        if (wasAtBottom) {
+            scrollToBottom();
+        }
     }
     
     function waitForImagesAndScroll() {
@@ -122,19 +136,92 @@
     window.addEventListener('DOMContentLoaded', waitForImagesAndScroll);
     
     // Scroll when new messages arrive via WebSocket
-    document.body.addEventListener('htmx:wsAfterMessage', scrollToBottom);
+    document.body.addEventListener('htmx:wsAfterMessage', conditionalScrollToBottom);
     
     // Scroll after file uploads
     document.body.addEventListener('htmx:afterRequest', function(event) {
         if (event.detail.elt.id === 'chat_file_form') {
-            setTimeout(scrollToBottom, 100);
+            setTimeout(conditionalScrollToBottom, 100);
         }
     });
     
     // Observer for DOM changes in chat messages
     const chatMessages = document.getElementById('chat_messages');
-    const observer = new MutationObserver(scrollToBottom);
+    const observer = new MutationObserver(conditionalScrollToBottom);
     observer.observe(chatMessages, { childList: true });
+    
+    // Combined scroll handler for tracking position and infinite scroll
+    const chatContainer = document.getElementById('chat_container');
+    let isLoading = false;
+    let noMoreMessages = false;
+    
+    chatContainer.addEventListener('scroll', function() {
+        // Track if user is at bottom
+        wasAtBottom = isAtBottom();
+        
+        // Handle infinite scroll
+        if (chatContainer.scrollTop === 0 && !isLoading && !noMoreMessages) {
+            isLoading = true;
+            const messageCount = document.querySelectorAll('#chat_messages li').length;
+            const currentScrollHeight = chatContainer.scrollHeight;
+            
+            // Temporarily disconnect observer to prevent auto-scroll
+            observer.disconnect();
+            
+            fetch(`/chat/older/{{ chatroom_name }}?offset=${messageCount}`)
+                .then(response => response.text())
+                .then(html => {
+                    if (html.trim()) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        const newMessages = tempDiv.children;
+                        
+                        while (newMessages.length > 0) {
+                            chatMessages.insertBefore(newMessages[0], chatMessages.firstChild);
+                        }
+                        
+                        // Maintain scroll position
+                        const newScrollHeight = chatContainer.scrollHeight;
+                        chatContainer.scrollTop = newScrollHeight - currentScrollHeight;
+                    } else {
+                        // No more messages available
+                        noMoreMessages = true;
+                        const noMoreDiv = document.createElement('div');
+                        noMoreDiv.className = 'no-more-messages';
+                        noMoreDiv.textContent = 'No earlier messages';
+                        chatMessages.insertBefore(noMoreDiv, chatMessages.firstChild);
+                        
+                        // Show message with animation
+                        setTimeout(() => {
+                            noMoreDiv.classList.add('no-more-messages--show');
+                        }, 10);
+                        
+                        // Hide message and scroll back to top after 2 seconds
+                        setTimeout(() => {
+                            noMoreDiv.classList.remove('no-more-messages--show');
+                            setTimeout(() => {
+                                noMoreDiv.remove();
+                                chatContainer.scrollTop = 0;
+                                // Reconnect observer after cleanup
+                                observer.observe(chatMessages, { childList: true });
+                            }, 300);
+                        }, 2000);
+                        
+                        // Don't reconnect observer yet - wait until cleanup is done
+                        isLoading = false;
+                        return;
+                    }
+                    // Reconnect observer
+                    observer.observe(chatMessages, { childList: true });
+                    isLoading = false;
+                })
+                .catch(() => {
+                    // Reconnect observer even on error
+                    observer.observe(chatMessages, { childList: true });
+                    isLoading = false;
+                });
+        }
+    });
 </script>
 <script>
 document.getElementById('minimise_chat').onclick = function() {
