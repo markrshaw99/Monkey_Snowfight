@@ -76,10 +76,9 @@
             </div>
         </div>
     </div>
-    {% if chat_group.members.exists %}
-    <a href="{% url 'chatroom-leave' chat_group.group_name %}">
-        {% include 'monkeychat/partials/modal_chat_leave.html' %}
-    </a>
+    {% if chat_group.members.exists and user != chat_group.admin %}
+    <button class="btn btn--red btn--small" onclick="document.getElementById('leaveModal').classList.add('modal--open')">Leave Chat</button>
+    {% include 'monkeychat/partials/modal_chat_leave.html' %}
     {% endif %}
 </div>
 
@@ -87,14 +86,55 @@
 
 {% block javascript %}
 <script>
-    function scrollToBottom(time=0) {
-        setTimeout(function() {
+    function scrollToBottom() {
         const container = document.getElementById('chat_container');
         container.scrollTop = container.scrollHeight;
-        }, time);
     }
-    // Scroll to bottom when the page loads
-    window.addEventListener('DOMContentLoaded', scrollToBottom);
+    
+    function waitForImagesAndScroll() {
+        const images = document.querySelectorAll('#chat_messages img');
+        let loadedCount = 0;
+        
+        if (images.length === 0) {
+            scrollToBottom();
+            return;
+        }
+        
+        images.forEach(img => {
+            if (img.complete) {
+                loadedCount++;
+            } else {
+                img.addEventListener('load', () => {
+                    loadedCount++;
+                    if (loadedCount === images.length) {
+                        scrollToBottom();
+                    }
+                });
+            }
+        });
+        
+        if (loadedCount === images.length) {
+            scrollToBottom();
+        }
+    }
+    
+    // Scroll on page load after images load
+    window.addEventListener('DOMContentLoaded', waitForImagesAndScroll);
+    
+    // Scroll when new messages arrive via WebSocket
+    document.body.addEventListener('htmx:wsAfterMessage', scrollToBottom);
+    
+    // Scroll after file uploads
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+        if (event.detail.elt.id === 'chat_file_form') {
+            setTimeout(scrollToBottom, 100);
+        }
+    });
+    
+    // Observer for DOM changes in chat messages
+    const chatMessages = document.getElementById('chat_messages');
+    const observer = new MutationObserver(scrollToBottom);
+    observer.observe(chatMessages, { childList: true });
 </script>
 <script>
 document.getElementById('minimise_chat').onclick = function() {

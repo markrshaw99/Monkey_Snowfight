@@ -75,10 +75,9 @@
             </div>
         </div>
     </div>
-    {% if chat_group.members.exists %}
-    <a href="{% url 'chatroom-leave' chat_group.group_name %}">
-        {% include 'monkeychat/partials/modal_chat_leave.html' %}
-    </a>
+    {% if chat_group.members.exists and user != chat_group.admin %}
+    <button class="btn btn--red btn--small" onclick="document.getElementById('leaveModal').classList.add('modal--open')">Leave Chat</button>
+    {% include 'monkeychat/partials/modal_chat_leave.html' %}
     {% endif %}
 </wrapper>
 
