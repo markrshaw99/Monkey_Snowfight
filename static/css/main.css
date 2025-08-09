@@ -1,6 +1,3 @@
-/* Clean Component-Based CSS */
-
-/* Tailwind CSS Reset */
 *, ::before, ::after {
     box-sizing: border-box;
     border-width: 0;
@@ -11,6 +8,29 @@
 ::before, ::after {
     --tw-content: '';
 }
+
+textarea:focus, select:focus, input:focus {
+    outline: none;
+    padding: 1rem;
+    background: rgba(240, 250, 250, 1);
+}
+
+  .loading-messages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(224,242,245);
+    color: rgb(38,87,136);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 1rem;
+    border-radius: 0.5em 0.5em 0 0;
+    animation: fadeInLoading 0.3s;
+  }
+  @keyframes fadeInLoading {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
 html {
     line-height: 1.5;
@@ -269,7 +289,7 @@ p {
 .btn {
     cursor: pointer;
     border-radius: 0.5rem;
-    background-color: rgb(79 70 229);
+    background-color: rgb(255, 105, 0);
     font-weight: 700;
     color: rgb(255 255 255);
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -448,7 +468,7 @@ p {
 
 /* Layout containers */
 .container {
-    width: 100vw;
+    width: 100%;
     max-width: 40rem;
     display: flex;
     align-items: center;
@@ -506,23 +526,30 @@ p {
     min-height: 0;
     display: flex;
     flex-direction: column;
-    background-color: #1f2937;
-    border-radius: 1rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     position: relative;
-    padding: 0.25rem;
+    padding: 1rem;
+    background: rgba(240, 250, 250, 0.8);
+    border-radius: 1rem;
+    box-shadow:
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 10px rgb(95,185,225);
 }
 
 .chat-info {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #34d399;
-    background-color: #1f2937;
+    color: rgb(38,87,136);
+    font-weight: bold;
     padding: 0.5rem;
     position: sticky;
     top: 0;
     z-index: 10;
+    padding: 0.5rem;
+    background: rgba(224, 242, 245, 1);
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 0 4px rgb(175,220,230);
 }
 
 .chat-minimize {
@@ -550,6 +577,30 @@ p {
     padding: 1rem;
 }
 
+.chat-messages {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE and Edge */
+}
+.chat-messages::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
+#chat_message_form {
+    padding: 4px;
+    background: rgba(224, 242, 245, 1);
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 3px rgb(175,220,230);
+}
+
+html {
+  /* ...existing styles... */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE and Edge */
+}
+html::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}
+
 .chat-messages__list {
     display: flex;
     flex-direction: column;
@@ -565,8 +616,10 @@ p {
     bottom: 0;
     z-index: 10;
     padding: 0.5rem;
-    padding-bottom: 0rem;
-    background-color: #1f2937;
+    background: rgba(224, 242, 245, 1);
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 0 4px rgb(175,220,230);
+
 }
 
 .chat-form {
@@ -574,15 +627,14 @@ p {
     flex-direction: column;
     gap: 0;
     align-items: center;
-    border-radius: 0.75rem;
-    padding: 0rem 0.5rem;
 }
 
 .chat-file-form {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
-    gap: 0.5rem;
+    margin-top: 0.25rem;
 }
 
 /* Chat messages */
@@ -641,13 +693,13 @@ p {
 
 .message__author-details {
     font-size: 0.875rem;
-    font-weight: 300;
+    font-weight: 500;
     padding: 0.25rem 0;
-    margin-left: 2.5rem;
+    margin-left: 0.5rem;
 }
 
 .message__author-name {
-    color: white;
+    color: rgb(38,87,136);
 }
 
 .message__username {
@@ -717,6 +769,7 @@ p {
 /* Forms */
 .form {
     width: 100%;
+
 }
 
 .form__field {
@@ -727,7 +780,7 @@ p {
     width: 100%;
     border-radius: 0.5rem;
     padding: 1rem 1.25rem;
-    background-color: #f3f4f6;
+    background: rgba(224, 242, 245, 1);
     border: none;
     font-size: 1rem;
 }
@@ -816,16 +869,20 @@ p {
 
 /* No more messages indicator */
 .no-more-messages {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(224,242,245);
+    color: rgb(38,87,136);
+    font-size: 1rem;
+    font-weight: 600;
     padding: 1rem;
-    color: #9ca3af;
-    font-size: 0.875rem;
-    background-color: rgba(31, 41, 55, 0.5);
-    border-radius: 0.5rem;
-    margin: 0.5rem 0;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.3s, transform 0.3s;
+    border-radius: 0.5em 0.5em 0 0;
+    animation: fadeInLoading 0.3s;
+  }
+  @keyframes fadeInLoading {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .no-more-messages--show {

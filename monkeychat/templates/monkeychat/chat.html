@@ -70,8 +70,10 @@
                     hx-swap="beforeend"
                     _="on htmx:afterRequest reset() me">
                     {% csrf_token %}
-                    <input type="file" name="file" id="id_file" class="form__input form__input--file"/>
-                    <button type="submit" class="btn btn--small">Send File</button>
+                    <label for="id_file" class="btn btn--small" style="margin-bottom:0;">Choose File</label>
+                    <input type="file" name="file" id="id_file" class="form__input form__input--file" style="display:none;"/>
+                    <span id="file-name" style="margin-left:0.5rem; font-size:0.95em; color:#6b7280;"></span>
+                    <button type="submit" class="btn btn--small">Send Attachment</button>
                 </form>
             </div>
         </div>
@@ -87,10 +89,11 @@
 {% block javascript %}
 <script>
     let wasAtBottom = true; // Track if user was at bottom before new content
+    let justSentMessage = false; // Track if this client just sent a message
     
     function isAtBottom() {
         const container = document.getElementById('chat_container');
-        const threshold = 50;
+        const threshold = 150;
         return container.scrollTop + container.clientHeight >= container.scrollHeight - threshold;
     }
     
@@ -105,15 +108,19 @@
         }
     }
     
-    function waitForImagesAndScroll() {
+    // Wait for images to load, then scroll if shouldScroll is true
+    function waitForImagesAndMaybeScroll(shouldScroll) {
+        // Always scroll if just sent a message
+        if (justSentMessage) {
+            shouldScroll = true;
+        }
         const images = document.querySelectorAll('#chat_messages img');
         let loadedCount = 0;
-        
+        if (!shouldScroll) return; // Don't scroll if user was not at bottom
         if (images.length === 0) {
             scrollToBottom();
             return;
         }
-        
         images.forEach(img => {
             if (img.complete) {
                 loadedCount++;
@@ -126,23 +133,36 @@
                 });
             }
         });
-        
         if (loadedCount === images.length) {
             scrollToBottom();
         }
     }
     
-    // Scroll on page load after images load
-    window.addEventListener('DOMContentLoaded', waitForImagesAndScroll);
-    
+    // Scroll on page load after images load (always scroll on load)
+    window.addEventListener('DOMContentLoaded', function() {
+        waitForImagesAndMaybeScroll(true);
+    });
+
     // Scroll when new messages arrive via WebSocket
-    document.body.addEventListener('htmx:wsAfterMessage', conditionalScrollToBottom);
-    
-    // Scroll after file uploads
+    document.body.addEventListener('htmx:wsAfterMessage', function() {
+        waitForImagesAndMaybeScroll(wasAtBottom);
+        justSentMessage = false; // Reset after handling
+    });
+    // Always scroll to bottom after sending a message from this client
+    document.getElementById('chat_message_form').addEventListener('submit', function() {
+        justSentMessage = true;
+    });
+
+    // Scroll after file uploads (only if wasAtBottom)
     document.body.addEventListener('htmx:afterRequest', function(event) {
         if (event.detail.elt.id === 'chat_file_form') {
-            setTimeout(conditionalScrollToBottom, 100);
+            setTimeout(function() {
+                waitForImagesAndMaybeScroll(wasAtBottom);
+            }, 100);
         }
+    });
+    document.getElementById('chat_file_form').addEventListener('htmx:afterRequest', function() {
+        document.getElementById('file-name').textContent = '';
     });
     
     // Observer for DOM changes in chat messages
@@ -158,28 +178,37 @@
     chatContainer.addEventListener('scroll', function() {
         // Track if user is at bottom
         wasAtBottom = isAtBottom();
-        
+
         // Handle infinite scroll
         if (chatContainer.scrollTop === 0 && !isLoading && !noMoreMessages) {
             isLoading = true;
             const messageCount = document.querySelectorAll('#chat_messages li').length;
             const currentScrollHeight = chatContainer.scrollHeight;
-            
+
+            // Show loading message
+            let loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading-messages';
+            loadingDiv.textContent = 'Loading earlier messages...';
+            chatMessages.insertBefore(loadingDiv, chatMessages.firstChild);
+
             // Temporarily disconnect observer to prevent auto-scroll
             observer.disconnect();
-            
+
             fetch(`/chat/older/{{ chatroom_name }}?offset=${messageCount}`)
                 .then(response => response.text())
                 .then(html => {
+                    // Remove loading message
+                    if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
+
                     if (html.trim()) {
                         const tempDiv = document.createElement('div');
                         tempDiv.innerHTML = html;
                         const newMessages = tempDiv.children;
-                        
+
                         while (newMessages.length > 0) {
                             chatMessages.insertBefore(newMessages[0], chatMessages.firstChild);
                         }
-                        
+
                         // Maintain scroll position
                         const newScrollHeight = chatContainer.scrollHeight;
                         chatContainer.scrollTop = newScrollHeight - currentScrollHeight;
@@ -190,12 +219,12 @@
                         noMoreDiv.className = 'no-more-messages';
                         noMoreDiv.textContent = 'No earlier messages';
                         chatMessages.insertBefore(noMoreDiv, chatMessages.firstChild);
-                        
+
                         // Show message with animation
                         setTimeout(() => {
                             noMoreDiv.classList.add('no-more-messages--show');
                         }, 10);
-                        
+
                         // Hide message and scroll back to top after 2 seconds
                         setTimeout(() => {
                             noMoreDiv.classList.remove('no-more-messages--show');
@@ -205,8 +234,8 @@
                                 // Reconnect observer after cleanup
                                 observer.observe(chatMessages, { childList: true });
                             }, 300);
-                        }, 2000);
-                        
+                        }, 3000);
+
                         // Don't reconnect observer yet - wait until cleanup is done
                         isLoading = false;
                         return;
@@ -216,6 +245,8 @@
                     isLoading = false;
                 })
                 .catch(() => {
+                    // Remove loading message on error
+                    if (loadingDiv.parentNode) loadingDiv.parentNode.removeChild(loadingDiv);
                     // Reconnect observer even on error
                     observer.observe(chatMessages, { childList: true });
                     isLoading = false;
@@ -232,5 +263,11 @@ document.getElementById('minimise_chat').onclick = function() {
         chatWrapper.style.display = 'none';
     }
 };
+</script>
+<script>
+document.getElementById('id_file').addEventListener('change', function(e) {
+  const fileName = e.target.files.length ? e.target.files[0].name : '';
+  document.getElementById('file-name').textContent = fileName;
+});
 </script>
 {% endblock %}
