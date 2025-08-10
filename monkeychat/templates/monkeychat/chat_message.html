@@ -1,25 +1,40 @@
+{% load tz %}
 {% if message.author == user %}
 <li class="message message--own">
-    <div class="message__bubble message__bubble--own">
-        {% include 'monkeychat/partials/message_content.html' %}
+    <div class="message__content-wrapper">
+        <div class="message__bubble message__bubble--own">
+            {% include 'monkeychat/partials/message_content.html' %}
+        </div>
+    </div>
+    <div class="message__timestamp message__timestamp--own">
+        {% timezone "Europe/London" %}{{ message.created|date:"H:i:s" }}{% endtimezone %}
     </div>
 </li>
 {% else %}
 <li class="message message--other">
-    <div class="message__author-info">
-        <a href="{% url 'profile' message.author.username %}">
-            <div class="message__avatar-container">
-                <div id="user-{{ message.author.id }}" class="status-dot"></div>
-                <img class="message__avatar" src="{{ message.author.profile.avatar }}">
+    <div class="message__content-wrapper">
+        <div class="message__author-column">
+            <div class="message__author-info">
+                <a href="{% url 'profile' message.author.username %}">
+                    <div class="message__avatar-container">
+                        <div id="user-{{ message.author.id }}" class="status-dot"></div>
+                        <img class="message__avatar" src="{{ message.author.profile.avatar }}">
+                    </div>
+                </a>
             </div>
-        </a>
-    </div>
-    <div class="message__bubble message__bubble--other">
-        {% include 'monkeychat/partials/message_content.html' %}
-    </div>
-    <div class="message__author-details">
-        <span class="message__author-name">{{ message.author.profile.name }}</span>
-        <span class="message__username">@{{ message.author.username }}</span>
+            <div class="message__timestamp message__timestamp--other">
+                {% timezone "Europe/London" %}{{ message.created|date:"H:i:s" }}{% endtimezone %}
+            </div>
+        </div>
+        <div class="message__content-column">
+            <div class="message__author-details">
+                <span class="message__author-name">{{ message.author.profile.name }}</span>
+                <span class="message__username">@{{ message.author.username }}</span>
+            </div>
+            <div class="message__bubble message__bubble--other">
+                {% include 'monkeychat/partials/message_content.html' %}
+            </div>
+        </div>
     </div>
 </li>
 {% endif %}
