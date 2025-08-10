@@ -216,8 +216,8 @@
                         // No more messages available
                         noMoreMessages = true;
                         const noMoreDiv = document.createElement('div');
-                        noMoreDiv.className = 'no-more-messages';
-                        noMoreDiv.textContent = 'No earlier messages';
+                        noMoreDiv.className = 'loading-messages';
+                        noMoreDiv.textContent = 'Reached Beginning of Chat';
                         chatMessages.insertBefore(noMoreDiv, chatMessages.firstChild);
 
                         // Show message with animation

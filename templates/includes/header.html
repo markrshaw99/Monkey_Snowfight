@@ -1,11 +1,11 @@
 {% load static %}
 <link href="https://db.onlinewebfonts.com/c/eba6ff471b149c188c89337749e3dc23?family=VAG+Rounded+BT" rel="stylesheet">
 <header class="header">
+    <div id="online-user-count" class="header__online-user-count"></div>
     <div class="header__brand-section">
         <a class="header__brand" href="/">
-            <span class="header__title">Monkey Snowfight</span>
+            <img class="header__title" src="{% static 'images/logo/Monkey_Snowfight.svg' %}" alt="Monkey Snowfight">
         </a>
-        <div id="online-user-count"></div>
     </div>
     <nav>
         <ul class="header__nav">
