@@ -1,3 +1,48 @@
+/*---------------------------------- Fonts (static) ----------------------------------*/
+/* Register local fonts without applying them globally */
+@font-face {
+  font-family: 'VAGRoundedBT';
+  src: url('../Fonts/VAGRoundedBT.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TradeGothic';
+  src: url('../Fonts/TradeGothicBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DistantGalaxy';
+  src: url('../Fonts/DistantGalaxy.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Sans12pt';
+  src: url('../Fonts/sans_12pt_st.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Convenient variables (use with font-family: var(--font-...)) */
+:root {
+  --font-vag-rounded: 'VAGRoundedBT', Arial, sans-serif;
+  --font-tradegothic: 'TradeGothic', Arial, sans-serif;
+  --font-distant-galaxy: 'DistantGalaxy', Arial, sans-serif;
+  --font-sans12pt: 'Sans12pt', Arial, sans-serif;
+}
+
+/* Optional utility classes (opt-in usage only) */
+.font-vag { font-family: var(--font-vag-rounded) !important; }
+.font-tradegothic { font-family: var(--font-tradegothic) !important; }
+.font-galaxy { font-family: var(--font-distant-galaxy) !important; }
+.font-sans12 { font-family: var(--font-sans12pt) !important; }
+
 /*---------------------------------- General CSS Start --------------------------------*/
 
 :root {
@@ -44,7 +89,8 @@
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   height: 3rem;
 }
 
@@ -285,6 +331,7 @@
     color: var(--blue-font);
     scrollbar-width: none;        /* Firefox */
     -ms-overflow-style: none;     /* IE and Edge */
+    font-family: var(--font-tradegothic);
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -1443,17 +1490,14 @@ input[type=file] {
   .message__author-details {
     display: none !important;
   }
-  .header__brand-section {
-    display: none !important;
-  }
   .header__nav-link {
-    font-size: 0.875rem !important;
+    font-size: 0.875rem;
   }
   .chat-messages {
-    padding: 0rem !important;
+    padding: 0rem;
   }
   .chat-wrapper {
-    padding: 0.25rem 0.1rem 4rem 0.1rem !important;
+    padding: 0.25rem 0.1rem 0.25rem 0.1rem;
 
   }
   .chat-file-form {
@@ -1471,4 +1515,9 @@ input[type=file] {
   .chat-file-form button {
     margin-top: 0.25rem;
   }
+}
+@media (max-width: 1200px) {
+    .header__brand-section {
+    display: none !important;
+}
 }
