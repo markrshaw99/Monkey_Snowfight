@@ -1,0 +1,51 @@
+{% extends "layouts/box.html" %}
+{% load allauth i18n %}
+
+{% block head_title %}
+    {% trans "Verify Your Email Address" %}
+{% endblock head_title %}
+
+{% block content %}
+    <div style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📧</div>
+        <h1>{% trans "Verify Your Email Address" %}</h1>
+        
+        {% if user.is_authenticated %}
+            {% if can_confirm %}
+                <p>We have sent an email to <strong>{{ user.email }}</strong> for verification.</p>
+                
+                <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0;">
+                    <h3>📮 Check Your Email!</h3>
+                    <p>Click the verification link in the email to activate your account and start playing.</p>
+                </div>
+                
+                <p>If you don't see the email, check your spam/junk folder.</p>
+                
+                <form method="post" action="{% url 'account_resend_email_confirmation' %}">
+                    {% csrf_token %}
+                    <div class="form__actions">
+                        <button type="submit" class="btn btn--gray">
+                            Resend Verification Email
+                        </button>
+                        <a href="{% url 'account_logout' %}" class="btn btn--red">
+                            Sign Out
+                        </a>
+                    </div>
+                </form>
+            {% else %}
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0;">
+                    <h3>✅ Email Already Verified!</h3>
+                    <p>Your email address is already verified. You're all set!</p>
+                </div>
+                
+                <div class="form__actions">
+                    <a href="{% url 'welcome' %}" class="btn">
+                        Start Playing
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <p>Please <a href="{% url 'account_login' %}">sign in</a> to verify your email address.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

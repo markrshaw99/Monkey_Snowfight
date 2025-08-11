@@ -1,0 +1,31 @@
+{% extends "layouts/box.html" %}
+{% load allauth i18n %}
+
+{% block head_title %}
+    {% trans "Email Verified" %}
+{% endblock head_title %}
+
+{% block content %}
+    <div style="text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+        <h1>{% trans "Email Verified!" %}</h1>
+        
+        <p>Congratulations! Your email address has been successfully verified.</p>
+        
+        <div style="background: #e0f2f5; padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0;">
+            <h3>🐒 Welcome to Monkey Snowfight! ❄️</h3>
+            <p>You're now ready to join the ultimate snowball fight!</p>
+        </div>
+        
+        <div class="form__actions">
+            <a href="{% url 'welcome' %}" class="btn">
+                Start Playing
+            </a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile-settings' %}" class="btn btn--gray">
+                    Account Settings
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

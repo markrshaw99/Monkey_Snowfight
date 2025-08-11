@@ -1,0 +1,49 @@
+{% extends "layouts/box.html" %}
+{% load allauth i18n %}
+
+{% block head_title %}
+    {% trans "Confirm Email Address" %}
+{% endblock head_title %}
+
+{% block content %}
+    <h1>{% trans "Confirm Email Address" %}</h1>
+    
+    {% if confirmation %}
+        {% user_display confirmation.email_address.user as user_display %}
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+            <h2>Almost there, {{ user_display }}!</h2>
+        </div>
+        
+        <p>Please confirm that <strong>{{ confirmation.email_address.email }}</strong> is the correct email address for your account.</p>
+        
+        <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+            {% csrf_token %}
+            <div class="form__actions">
+                <button type="submit" class="btn">
+                    {% trans 'Confirm Email' %}
+                </button>
+                <a href="{% url 'welcome' %}" class="btn btn--gray">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    {% else %}
+        <div style="text-align: center; margin: 2rem 0;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+            <h2>Invalid Verification Link</h2>
+        </div>
+        
+        <p>This email confirmation link is invalid, possibly because it has already been used or has expired.</p>
+        
+        <div class="form__actions">
+            <a href="{% url 'account_email' %}" class="btn">
+                Resend Verification Email
+            </a>
+            <a href="{% url 'welcome' %}" class="btn btn--gray">
+                Back to Home
+            </a>
+        </div>
+    {% endif %}
+{% endblock content %}

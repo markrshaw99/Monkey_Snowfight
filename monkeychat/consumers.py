@@ -7,6 +7,11 @@ from .models import *
 
 class ChatroomConsumer(WebsocketConsumer):
     def connect(self):
+        # Check if user is authenticated first
+        if not self.scope["user"].is_authenticated:
+            self.close()
+            return
+            
         self.user = self.scope["user"]
         self.chatroom_name = self.scope["url_route"]["kwargs"]["chatroom_name"]
         self.chatroom = get_object_or_404(ChatRoom, group_name=self.chatroom_name)
@@ -21,16 +26,16 @@ class ChatroomConsumer(WebsocketConsumer):
             self.chatroom.users_online.add(self.user)
             self.update_online_count()
 
-
         self.accept()
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.chatroom_name,
-            self.channel_name
-        )  
-        # Remove and update online users
-        if self.user in self.chatroom.users_online.all():
+        if hasattr(self, 'chatroom_name'):
+            async_to_sync(self.channel_layer.group_discard)(
+                self.chatroom_name,
+                self.channel_name
+            )  
+        # Remove and update online users only if user was authenticated
+        if hasattr(self, 'user') and hasattr(self, 'chatroom') and self.user in self.chatroom.users_online.all():
             self.chatroom.users_online.remove(self.user)
             self.update_online_count()
 
@@ -98,6 +103,11 @@ class ChatroomConsumer(WebsocketConsumer):
 
 class OnlineStatusConsumer(WebsocketConsumer):
     def connect(self):
+        # Check if user is authenticated first
+        if not self.scope["user"].is_authenticated:
+            self.close()
+            return
+            
         self.user = self.scope['user']
         self.group_name = 'online-status'
         self.group = get_object_or_404(ChatRoom, group_name=self.group_name)
@@ -110,19 +120,20 @@ class OnlineStatusConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-            
         self.accept()
         self.online_status()
 
     def disconnect(self, close_code):
-        if self.user in self.group.users_online.all():
+        # Only process if user was authenticated and connected successfully
+        if hasattr(self, 'user') and hasattr(self, 'group') and self.user in self.group.users_online.all():
             self.group.users_online.remove(self.user)
 
-        async_to_sync(self.channel_layer.group_discard)(
-            self.group_name,
-            self.channel_name
-        )
-        self.online_status()
+        if hasattr(self, 'group_name'):
+            async_to_sync(self.channel_layer.group_discard)(
+                self.group_name,
+                self.channel_name
+            )
+            self.online_status()
 
     def online_status(self):
         event = {

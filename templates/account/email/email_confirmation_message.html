@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Monkey Snowfight</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #5fb9e1 0%, #ff6800 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8fffe;
+            padding: 30px;
+            border: 3px solid #5fb9e1;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+        .verify-button {
+            display: inline-block;
+            background-color: #ff6800;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .verify-button:hover {
+            background-color: #265788;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🐒 Welcome to Monkey Snowfight! ❄️</h1>
+    </div>
+    
+    <div class="content">
+        <h2>Hi {{ user.get_full_name|default:user.username }}!</h2>
+        
+        <p>Thank you for joining the ultimate snowball fight! We're excited to have you on board.</p>
+        
+        <p>To complete your registration and start throwing snowballs, please verify your email address:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ activate_url }}" class="verify-button">Verify My Email</a>
+        </div>
+        
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; background: #e0f2f5; padding: 10px; border-radius: 5px;">{{ activate_url }}</p>
+        
+        <p><strong>This verification link will expire in a few days</strong>, so please verify your email soon.</p>
+        
+        <p>If you didn't create an account with us, you can safely ignore this email.</p>
+        
+        <p>Ready to start the snowball fight? We can't wait to see you in action!</p>
+        
+        <p>Best regards,<br>
+        <strong>The Monkey Snowfight Team</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>This email was sent to {{ user.email }}</p>
+        <p>© 2025 Monkey Snowfight. All rights reserved.</p>
+    </div>
+</body>
+</html>
