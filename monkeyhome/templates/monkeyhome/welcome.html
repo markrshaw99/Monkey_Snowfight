@@ -1,12 +1,65 @@
-{% extends 'layouts/blank.html' %}
+{% extends 'layouts/welcome.html' %}
 
 {% block content %}
 <div class="welcome">
     <h1 class="welcome__title">Welcome to Monkey Snowfight!</h1>
-    <p class="welcome__description">A real-time chat and gaming platform. Use the navigation to play the game or join the chat!</p>
+    
+    <div class="welcome__story">
+        <p class="welcome__intro">
+            Remember the simple joy of two monkeys throwing snowballs at each other? 
+            In the late 2000s, <strong>Monkey Snowfight</strong> by Niclas Åberg captured hearts worldwide 
+            with its delightfully chaotic multiplayer battles.
+        </p>
+        
+        <div class="welcome__video">
+            <iframe 
+                src="https://www.youtube.com/embed/7YikJRF5oUY" 
+                title="Monkey Snowfight - Original Game" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        
+        <div class="welcome__inspiration">
+            <h2 class="welcome__subtitle">My Inspiration</h2>
+            <p class="welcome__description">
+                This project is my tribute to that beloved game. While the original had chat features 
+                that were "quickly removed for obvious reasons," I saw an opportunity to reimagine 
+                what a Monkey Snowfight community could look like with proper moderation and design.
+            </p>
+            
+            <p class="welcome__description">
+                What started as nostalgia became a full-featured real-time chat ecosystem. 
+                The game recreation is still a work in progress, but the heart of the community—
+                the chat, the connections, the playful spirit—is alive and thriving.
+            </p>
+        </div>
+        
+        <div class="welcome__current">
+            <h2 class="welcome__subtitle">What's Here Now</h2>
+            <p class="welcome__description">
+                <strong>Fully Working Chat System</strong> - Real-time messaging with rooms, file sharing, and user profiles. Join the public chat, create a group or even direct message a friend.<br>
+                <strong>Game in Development</strong> - The snowball fights will return, better than ever<br>
+                <strong>Modern Technology</strong> - Built with Django, WebSockets, and responsive design<br>
+                <strong>Community First</strong> - Safe, moderated spaces for monkey mayhem
+            </p>
+        </div>
+    </div>
+    
     <div class="welcome__actions">
-        <a href="/play/" class="btn">Play Game</a>
-        <a href="/chat/" class="btn">Join Chat</a>
+        <a href="/chat/" class="btn">Join the Chat</a>
+        <a href="/play/" class="btn btn--gray">Game Preview</a>
+    </div>
+    
+    <div class="welcome__footer">
+        <p>
+            <small>
+                Original Monkey Snowfight by <a href="https://www.totebo.com/monkey-snowfight" target="_blank" rel="noopener">Niclas Åberg</a> 
+                | This is an independent tribute  by <a href="https://www.github.com/markrshaw99" target="_blank" rel="noopener">Mark Rutherford-Shaw</a>
+            </small>
+        </p>
     </div>
 </div>
 {% endblock %}
