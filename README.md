@@ -1,6 +1,6 @@
 # 🐒 Monkey Snowfight - Real-Time Chat Community
 
-![Monkey Snowfight Logo](static/images/Monkey_Snowfight.svg)
+![Monkey Snowfight Logo](static/images/logo/Monkey_Snowfight.svg)
 
 ## Project Overview
 
