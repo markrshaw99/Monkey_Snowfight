@@ -45,6 +45,11 @@ The Monkey Snowfight chat system enables real-time communication through three d
 - 👤 **Interactive avatars** with profile navigation
 - 🚫 **Multi-layer message validation** preventing empty submissions
 - 🎨 **Advanced UI animations** and loading states
+- ✉️ **Complete email verification system** with automatic login
+- 👤 **Profile onboarding flow** with custom avatar support
+- 🔐 **Enhanced authentication** with WebSocket session management
+- 📧 **Professional email templates** with branded styling
+- 🎨 **Semi-transparent design elements** with CSS custom properties
 
 ---
 
@@ -67,6 +72,9 @@ graph TB
 3. **Redis** - Message broker for WebSocket communication
 4. **PostgreSQL** - Primary data storage
 5. **Cloudinary** - File upload and storage service
+6. **Django Allauth** - Complete authentication system with email verification
+7. **Gmail SMTP** - Production email delivery service
+8. **Custom Email Templates** - Professional branded verification emails
 
 ---
 
@@ -95,11 +103,261 @@ class ChatMessage(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 ```
 
+### **Profile Model**
+```python
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = CloudinaryField('image', null=True, blank=True)
+    displayname = models.CharField(max_length=20, null=True, blank=True)
+    info = models.TextField(null=True, blank=True)
+    
+    @property
+    def name(self):
+        if self.displayname:
+            return self.displayname
+        return self.user.username
+        
+    @property
+    def avatar(self):
+        if self.image:
+            return self.image.url
+        return f'{settings.STATIC_URL}images/avatar.png'
+```
+
 ### **Relationships**
 - **One-to-Many**: ChatRoom → ChatMessages
 - **Many-to-Many**: ChatRoom ↔ Users (members)
 - **Many-to-Many**: ChatRoom ↔ Users (online users)
 - **Foreign Key**: ChatMessage → User (author)
+- **One-to-One**: User ↔ Profile (extended user data)
+- **One-to-One**: User ↔ Profile.image (Cloudinary avatar storage)
+
+---
+
+## 🔐 **Authentication & User Management System**
+
+### **Complete Email Verification Flow**
+
+The system implements a comprehensive email verification process with automatic login and profile onboarding:
+
+#### **Email Verification Configuration**
+```python
+# Django Allauth Settings
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/profile/edit/?onboarding=true'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/profile/edit/?onboarding=true'
+
+# Gmail SMTP Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'monkeysnowfightgameandchat@gmail.com'
+DEFAULT_FROM_EMAIL = 'monkeysnowfightgameandchat@gmail.com'
+```
+
+#### **Custom Email Confirmation View**
+```python
+class CustomConfirmEmailView(ConfirmEmailView):
+    """Enhanced email confirmation with guaranteed auto-login"""
+    
+    def post(self, *args, **kwargs):
+        # Confirm the email
+        self.object = confirmation = self.get_object()
+        confirmation.confirm(self.request)
+        
+        # Force login the user
+        user = confirmation.email_address.user
+        backend = get_backends()[0]
+        login(self.request, user, backend=backend.__class__.__module__ + '.' + backend.__class__.__name__)
+        
+        # Redirect to profile onboarding
+        return redirect(f"{reverse('profile-edit')}?onboarding=true")
+```
+
+### **Professional Email Templates**
+
+#### **HTML Email Template**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Verify Your Monkey Snowfight Account</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0fafa; }
+        .container { max-width: 600px; margin: 0 auto; background: white; }
+        .header { background: rgb(95,185,225); color: white; padding: 20px; }
+        .content { padding: 30px; }
+        .button { 
+            background: rgb(255,104,0); 
+            color: white; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            display: inline-block; 
+        }
+        .footer { background: #f8f9fa; padding: 20px; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐒 Welcome to Monkey Snowfight!</h1>
+        </div>
+        <div class="content">
+            <p>Hi there!</p>
+            <p>Thanks for signing up! Please verify your email address to complete your registration and start chatting with the community.</p>
+            <p style="text-align: center; margin: 30px 0;">
+                <a href="{{ activate_url }}" class="button">Verify Email Address</a>
+            </p>
+            <p><strong>What's next?</strong></p>
+            <ul>
+                <li>✅ Click the verification button above</li>
+                <li>🎯 Complete your profile setup</li>
+                <li>💬 Start chatting in our community</li>
+                <li>🎮 Enjoy the Monkey Snowfight experience!</li>
+            </ul>
+        </div>
+        <div class="footer">
+            <p>If you didn't create an account, you can safely ignore this email.</p>
+            <p>© 2024 Monkey Snowfight. Have fun and stay awesome! 🐒</p>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+### **Profile Onboarding System**
+
+#### **Enhanced Profile Model with Default Avatar**
+```python
+@property
+def avatar(self):
+    if self.image:
+        return self.image.url
+    return f'{settings.STATIC_URL}images/avatar.png'  # Default avatar for all new users
+```
+
+#### **Onboarding Flow Features**
+- **Automatic Profile Creation**: Created via Django signals on user registration
+- **Default Avatar System**: All users start with `static/images/avatar.png`
+- **Onboarding Parameter**: `?onboarding=true` triggers welcome messaging
+- **Custom Display Names**: Users can set personalized display names
+- **Profile Information**: Rich text bio/info section
+- **Avatar Upload**: Cloudinary integration for custom profile pictures
+
+### **Enhanced WebSocket Authentication**
+
+#### **Fixed Authentication Middleware**
+```python
+# Fixed WebSocket consumer authentication
+async def connect(self):
+    if not self.scope["user"] or self.scope["user"].is_anonymous:
+        await self.close()
+        return
+    
+    # Proper user handling without UserLazyObject errors
+    user = self.scope["user"]
+    if hasattr(user, '_wrapped'):
+        user = user._wrapped
+```
+
+#### **Consistent Online User Management**
+- **Authentication Guards**: All WebSocket connections validate authentication
+- **Proper User Exclusion**: Consistent logic for removing offline users
+- **Real-time Sync**: Online status synchronized across all connected clients
+- **Memory Management**: Efficient cleanup of disconnected users
+
+### **Password Security**
+
+#### **Django Password Validators**
+```python
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        # Default: 8 characters minimum
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        # Prevents common passwords like "password123"
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        # Prevents purely numeric passwords
+    },
+]
+```
+
+---
+
+## 🎨 **Enhanced UI & Design System**
+
+### **CSS Custom Properties & Design Tokens**
+```css
+:root {
+  --blue-1: rgba(95,185,225);    /* Primary brand blue */
+  --blue-2: rgba(191,230,255);   /* Light blue backgrounds */
+  --blue-3: rgba(185,225,255);   /* Accent blue */
+  --blue-font: rgba(38,87,136);  /* Text blue */
+  --orange-1: rgb(255, 104, 0);  /* Primary orange accent */
+}
+```
+
+### **Semi-Transparent Profile Design**
+```css
+.profile {
+    background-color: rgba(95, 185, 225, 0.3);  /* Semi-transparent blue */
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);  /* Modern glass effect */
+}
+```
+
+### **Enhanced Form Styling**
+
+#### **Custom Input Backgrounds**
+```css
+.form__input {
+    background: rgba(224, 242, 245, 1);  /* Branded input background */
+    color: var(--blue-font);
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Override browser autofill styling */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px rgba(224, 242, 245, 1) inset !important;
+    -webkit-text-fill-color: var(--blue-font) !important;
+}
+```
+
+#### **Centered Authentication Buttons**
+```html
+<!-- Signup & Login forms with centered buttons -->
+<div class="center-me">
+    {% element button tags="prominent,signup" type="submit" %}
+        {% trans "Sign Up" %}
+    {% endelement %}
+</div>
+```
+
+#### **Enhanced Link Styling**
+```css
+.page-link {
+    text-decoration: underline;
+    color: var(--blue-font);
+    transition: color 0.2s ease;
+}
+
+.page-link:hover {
+    color: var(--orange-1);
+}
+```
 
 ---
 
@@ -638,10 +896,15 @@ let noMoreMessages = false;      // End-of-history state
 
 ### **Security Measures**
 - 🔐 **Authentication required** for all chat access
-- ✉️ **Email verification** required for group chats
+- ✉️ **Mandatory email verification** for account activation
+- 📧 **Professional email templates** preventing phishing confusion
+- 🔄 **Automatic login** after email verification
 - 🚫 **Member-only access** to private/group content
 - 🛡️ **CSRF protection** on all forms
 - 🔒 **Secure file uploads** with validation
+- 🔐 **Password strength requirements** (8+ chars, no common passwords)
+- 🌐 **WebSocket authentication** guards on all connections
+- 🎯 **Input validation** on both client and server side
 
 ### **Data Privacy**
 - **Private chats**: Only visible to participants
@@ -660,30 +923,46 @@ WebSockets: Django Channels
 Database: PostgreSQL (Neon hosted)
 Cache/Broker: Redis Cloud
 File Storage: Cloudinary
-Authentication: Django Allauth
+Authentication: Django Allauth 65.9.0
+Email Service: Gmail SMTP
+User Profiles: Custom Profile model with Cloudinary integration
 ```
 
 ### **Frontend Technologies**
 ```yaml
 Dynamic Updates: HTMX
 Real-time: WebSockets
-Styling: Tailwind CSS (custom build)
+Styling: Custom CSS with CSS variables
+UI Components: Django Allauth element system
 Icons: Icons8
-Fonts: VAG Rounded BT
+Fonts: VAG Rounded BT, Trade Gothic
 ```
 
 ### **Infrastructure**
 ```yaml
-Hosting: TBD
+Hosting: Heroku
 Database: Neon PostgreSQL
 Redis: Redis Cloud
 CDN: Cloudinary
 SSL: Automatic HTTPS
+Email: Gmail SMTP with App Passwords
+Domain Management: Django Sites framework
 ```
 
 ---
 
 ## 👥 **User Journey Examples**
+
+### **🆕 User Registration & Email Verification**
+1. **Registration**: User submits signup form with email/username/password
+2. **Account Creation**: Django creates User account but requires email verification
+3. **Email Dispatch**: System sends professional HTML verification email via Gmail SMTP
+4. **Email Reception**: User receives branded verification email with CTA button
+5. **Verification Click**: User clicks "Verify Email Address" button in email
+6. **Auto-Login**: Custom view automatically logs user in after verification
+7. **Profile Onboarding**: User redirected to profile edit with `?onboarding=true`
+8. **Profile Setup**: User completes display name, bio, and avatar upload
+9. **Chat Access**: User can now access all chat features
 
 ### **🔄 Starting a Private Chat**
 1. **Discovery**: User clicks on another user's profile/username
@@ -818,6 +1097,35 @@ WS /ws/online-status/
   }
 }
 ```
+
+---
+
+## 🚀 **Recent Enhancements Completed**
+
+### **✅ Authentication & User Management**
+- [x] Complete email verification system with mandatory verification
+- [x] Professional branded email templates (HTML + text)
+- [x] Automatic login after email verification
+- [x] Profile onboarding flow with custom messaging
+- [x] Default avatar system for all new users
+- [x] Enhanced Profile model with display names and bio
+- [x] Password strength validation (Django validators)
+- [x] WebSocket authentication fixes and session management
+
+### **✅ UI/UX Improvements**
+- [x] Semi-transparent profile backgrounds with CSS variables
+- [x] Enhanced form styling with branded colors
+- [x] Centered authentication buttons for better UX
+- [x] Custom link styling with hover effects
+- [x] Browser autofill override for consistent input styling
+- [x] Responsive design improvements for mobile devices
+
+### **✅ Technical Infrastructure**
+- [x] Gmail SMTP integration for production email delivery
+- [x] Heroku deployment with environment variable configuration
+- [x] Django Sites framework for proper domain management
+- [x] Cloudinary integration for profile avatar uploads
+- [x] Enhanced WebSocket consumer error handling
 
 ---
 
