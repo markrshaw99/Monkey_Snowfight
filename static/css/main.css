@@ -215,7 +215,7 @@
 
 /*------------------------------------ Chat Page CSS Start ------------------------------------*/
 
-  .loading-messages {
+.loading-messages {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -232,13 +232,15 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .page-wrapper, .container {
+.container {
     height: calc(100vh - 5rem); /* Adjust 5rem to your header height */
     min-height: unset;
     padding: 0;
 }
-
 .page-wrapper {
+    height: calc(100vh - 5rem); /* Adjust 5rem to your header height */
+    min-height: unset;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -246,31 +248,37 @@
 
 /* Chat interface */
 .chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     height: 100%;
+    width: 100%;
     max-width: 48rem;
-    margin: 2.5rem auto;
-    padding: 1rem 0.5rem;
+    margin: 5rem auto;
+    padding: 0.5rem;
 }
 
 .chat-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0;
+    margin: 0 0.25rem;
+
 }
 
 .chat-edit-btn {
     padding: 0.5rem;
-    background-color: #e5e7eb;
+    background-color: var(--orange-1);
     border-radius: 0.5rem;
     transition: background-color 0.2s;
     text-decoration: none;
-    color: #6b7280;
+    color: white;
+    margin-bottom: 0.25rem;
 }
 
 .chat-edit-btn:hover {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--blue-font);
+    color: var(--orange-1)
 }
 
 .chat-window {
@@ -394,8 +402,7 @@ h1, h2, h3, h4, h5, h6 {
 
 a {
     color: inherit;
-    text-decoration-line: underline;
-    text-underline-offset: 2px;
+    text-decoration: none;
 }
 
 b, strong {
@@ -564,10 +571,11 @@ h1 {
 }
 
 h2 {
-    margin-bottom: 0.5rem;
-    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+    font-size: 1.5rem;
     line-height: 1.75rem;
     font-weight: 700;
+    color: var(--blue-font);
 }
 
 h3 {
@@ -647,7 +655,8 @@ p {
 }
 
 .btn:hover {
-    background-color: rgb(95, 185, 225);
+    background-color: var(--blue-font);
+    color: var(--orange-1);
 }
 
 .btn:active {
@@ -744,6 +753,10 @@ html::-webkit-scrollbar {
     justify-content: space-between;
     width: 100%;
     margin-top: 0.25rem;
+}
+
+.chat-header-display-name {
+    text-decoration: none !important;
 }
 
 /* Chat messages */
@@ -1569,6 +1582,7 @@ input[type=file] {
     margin-top: 0.25rem;
   }
 }
+
 @media (max-width: 1200px) {
     .header__brand-section {
     display: none !important;

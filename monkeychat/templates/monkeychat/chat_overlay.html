@@ -33,7 +33,7 @@
                 {% for member in chat_group.members.all %}
                 <li>
                     <a href="{% url 'profile' member.username %}"
-                        class="flex flex-col text-gray-400 items-center justify-center w-20 gap-2">
+                        class="flex flex-col text-gray-400 items-center justify-center w-20">
                         <img src="{{ member.profile.avatar }}" class="w-14 h-14 rounded-full object-cover">
                         {{ member.profile.name|slice:":10" }}
                     </a>
@@ -93,6 +93,16 @@
     }
     // Scroll to bottom when the page loads
     window.addEventListener('DOMContentLoaded', scrollToBottom);
+</script>
+<script>
+    // Prevent empty message submission
+    document.getElementById('chat_message_form').addEventListener('submit', function(e) {
+        const messageInput = document.querySelector('#chat_message_form input[name="body"]');
+        if (!messageInput.value.trim()) {
+            e.preventDefault();
+            return false;
+        }
+    });
 </script>
 <script>
 document.getElementById('minimise_chat').onclick = function() {

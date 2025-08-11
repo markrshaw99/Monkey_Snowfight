@@ -37,9 +37,13 @@ class ChatroomConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         body = text_data_json["body"]
+        
+        # Don't create message if empty or just whitespace
+        if not body or not body.strip():
+            return
 
         message = ChatMessage.objects.create(
-            body = body,
+            body = body.strip(),
             author = self.user,
             group = self.chatroom
         )

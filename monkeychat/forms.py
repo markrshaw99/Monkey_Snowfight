@@ -9,6 +9,12 @@ class ChatMessageCreateForm(ModelForm):
         widgets = {
             'body': forms.TextInput(attrs={'placeholder': 'Add a message...', 'class': 'form__input', 'maxlength' : '300', 'autofocus': True}),
         }
+    
+    def clean_body(self):
+        body = self.cleaned_data.get('body')
+        if not body or not body.strip():
+            raise forms.ValidationError("Message cannot be empty.")
+        return body.strip()
 
 
 class NewGroupForm(ModelForm):

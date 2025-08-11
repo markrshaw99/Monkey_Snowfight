@@ -30,7 +30,7 @@
     {% for member in chat_group.members.all %}
     <li>
         <a href="{% url 'profile' member.username %}"
-            class="flex flex-col text-gray-400 items-center justify-center w-20 gap-2">
+            class="flex flex-col text-gray-400 items-center justify-center w-20">
             <div class="relative">
                 {% if member in chat_group.users_online.all %}
                 <div class="green-dot border-2 border-gray-800 absolute bottom-0 right-0"></div>
@@ -39,7 +39,7 @@
                 {% endif %}
                 <img src="{{ member.profile.avatar }}" class="w-14 h-14 rounded-full object-cover">
             </div>
-            {{ member.profile.name|slice:":10" }}
+            <div class="chat-header-display-name">{{ member.profile.name|slice:":10" }}</div>
         </a>
     </li>
     {% endfor %}

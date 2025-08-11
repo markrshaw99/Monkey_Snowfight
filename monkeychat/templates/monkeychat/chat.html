@@ -149,7 +149,12 @@
         justSentMessage = false; // Reset after handling
     });
     // Always scroll to bottom after sending a message from this client
-    document.getElementById('chat_message_form').addEventListener('submit', function() {
+    document.getElementById('chat_message_form').addEventListener('submit', function(e) {
+        const messageInput = document.querySelector('#chat_message_form input[name="body"]');
+        if (!messageInput.value.trim()) {
+            e.preventDefault();
+            return false;
+        }
         justSentMessage = true;
     });
 
