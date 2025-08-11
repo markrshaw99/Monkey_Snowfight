@@ -78,7 +78,7 @@ class ChatroomConsumer(WebsocketConsumer):
         self.send(text_data=html)
 
     def update_online_count(self):
-        online_count = self.chatroom.users_online.count() -1  # Exclude the current user from the count
+        online_count = self.chatroom.users_online.exclude(id=self.user.id).count()  # Exclude current user
         event = {
                 'type': 'online_count_handler',
                 'online_count': online_count
@@ -145,8 +145,8 @@ class OnlineStatusConsumer(WebsocketConsumer):
         )
 
     def online_status_handler(self, event):
-        online_users = self.group.users_online.exclude(id=self.user.id)
-        public_chat_users = ChatRoom.objects.get(group_name='public-chat').users_online.exclude(id=self.user.id)
+        online_users = self.group.users_online.exclude(id=self.user.id)  # Exclude current user
+        public_chat_users = ChatRoom.objects.get(group_name='public-chat').users_online.exclude(id=self.user.id)  # Exclude current user
         
         my_chats = self.user.chat_groups.all()
         private_chats_with_users = [chat for chat in my_chats.filter(is_private=True) if chat.users_online.exclude(id=self.user.id)]
