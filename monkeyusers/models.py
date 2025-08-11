@@ -23,4 +23,4 @@ class Profile(models.Model):
     def avatar(self):
         if self.image:
             return self.image.url
-        return f'{settings.STATIC_URL}images/avatar.svg'
+        return f'{settings.STATIC_URL}images/avatar.png'

@@ -974,6 +974,8 @@ html::-webkit-scrollbar {
     align-items: center;
     padding: 3rem 1rem;
     text-align: center;
+    background-color: rgba(95, 185, 225, 0.3);
+    border-radius: 1rem;
 }
 
 .profile__avatar {
@@ -994,9 +996,14 @@ html::-webkit-scrollbar {
     margin-top: -0.75rem;
 }
 
+.profile .profile__username {
+    color: var(--orange-1);
+}
+
 .profile__info {
     margin-top: 2rem;
     hyphens: auto;
+    color: var(--orange-1);
 }
 
 /* Welcome page */
