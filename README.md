@@ -10,7 +10,7 @@
 
 Inspired by the original Monkey Snowfight game by Niclas Åberg, this project reimagines what a gaming community platform could look like with proper moderation, modern technology, and enhanced user experience. While the original game featured chat functionality that was "quickly removed for obvious reasons," this project demonstrates how to build secure, scalable real-time communication features.
 
-**Live Application**: [Deployed on Railway](https://monkey-snowfight-production.up.railway.app/)
+**Live Application**: [Deployed on Heroku](https://monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com/)
 
 ---
 
@@ -127,7 +127,7 @@ This project fulfills all Learning Outcomes for the AI Augmented Full Stack Boot
 ### LO6: Cloud Deployment ✅
 
 **6.1 Deploy Application to Cloud Platform**
-- ✅ Successfully deployed to Railway platform
+- ✅ Successfully deployed to Heroku platform
 - ✅ Production environment matches development
 - ✅ Proper static file serving with WhiteNoise
 
@@ -198,7 +198,7 @@ This project fulfills all Learning Outcomes for the AI Augmented Full Stack Boot
 ### Third-Party Services
 - **Cloudinary**: File upload and storage
 - **Gmail SMTP**: Email delivery service
-- **Railway**: Cloud hosting platform
+- **Heroku**: Cloud hosting platform
 
 ### Development Tools
 - **GitHub**: Version control and project management
@@ -300,11 +300,11 @@ class Profile(models.Model):
    redis-server
    ```
 
-### Production Deployment (Railway)
+### Production Deployment (Heroku)
 
 1. **Connect GitHub Repository**
-   - Link your GitHub repository to Railway
-   - Configure environment variables in Railway dashboard
+   - Link your GitHub repository to Heroku
+   - Configure environment variables in Heroku dashboard
 
 2. **Set Environment Variables**
    ```env
@@ -323,8 +323,8 @@ class Profile(models.Model):
    ```
 
 4. **Deploy**
-   - Railway automatically deploys on push to main branch
-   - Run migrations through Railway's CLI or admin panel
+   - Heroku automatically deploys on push to main branch
+   - Run migrations through Heroku CLI or admin panel
 
 ---
 
@@ -526,7 +526,7 @@ This project is created for educational purposes as part of the AI Augmented Ful
 
 - GitHub: [@markrshaw99](https://github.com/markrshaw99)
 - Project Repository: [Monkey_Snowfight](https://github.com/markrshaw99/Monkey_Snowfight)
-- Live Application: [monkey-snowfight-production.up.railway.app](https://monkey-snowfight-production.up.railway.app/)
+- Live Application: [https://monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com/](https://monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com/)
 
 ---
 
