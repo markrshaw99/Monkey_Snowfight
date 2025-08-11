@@ -14,7 +14,7 @@
                 {% if user.email %}{{ user.email }}{% else %}No Email{% endif %}
             </td>
             <td>
-                <a id="email-edit" class="settings-link"
+                <a id="email-edit" class="btn settings-link"
                     hx-get="{% url 'profile-emailchange' %}"
                     hx-target="#email-address"
                     hx-swap="innerHTML" >
@@ -24,7 +24,8 @@
         </tr>
 
         <tr>
-            <th scope="row">  
+            <th scope="row">
+                Verified?
             </th>
             <td>
                 {% if user.emailaddress_set.first.verified %}
@@ -33,7 +34,7 @@
                 {% endif %}
             </td>
             <td>
-                <a href="{% url 'profile-emailverify' %}" class="settings-link">
+                <a href="{% url 'profile-emailverify' %}" class="btn settings-link">
                     {% if not user.emailaddress_set.first.verified %}Verify{% endif %}
                 </a>
             </td>
@@ -47,7 +48,7 @@
                 {{ user.username }}
             </td>
             <td>
-                <a id="username-edit" class="settings-link"
+                <a id="username-edit" class="btn settings-link"
                     hx-get="{% url 'profile-usernamechange' %}"
                     hx-target="#username"
                     hx-swap="innerHTML" >
@@ -64,7 +65,7 @@
                 Once deleted, account is gone. Forever.
             </td>
             <td>
-                <a href="{% url 'profile-delete' %}" class="settings-link settings-link--danger">
+                <a href="{% url 'profile-delete' %}" class="btn settings-link settings-link--danger">
                     Delete
                 </a>
             </td>

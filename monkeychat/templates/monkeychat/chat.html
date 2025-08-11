@@ -88,6 +88,97 @@
 
 {% block javascript %}
 <script>
+    // Auto-link detection function - Improved URL detection with better domain validation
+    function autoLinkText(text) {
+        // More restrictive URL regex for legitimate URLs
+        const urlPattern = /(https?:\/\/[^\s]+|www\.[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}(?:\/[^\s]*)?|[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/gi;
+        
+        return text.replace(urlPattern, function(url) {
+            // Skip if it's just a number with decimal (like 3.14 or 123.456)
+            if (/^\d+\.\d+$/.test(url)) {
+                return url;
+            }
+            
+            // Skip if it's just dots/ellipsis
+            if (/^\.+$/.test(url)) {
+                return url;
+            }
+            
+            // Skip if it starts with a number and has only one dot (like version numbers)
+            if (/^\d+\.[a-zA-Z0-9]+$/.test(url) && !url.includes('/')) {
+                return url;
+            }
+            
+            // Skip common non-URL patterns (object.property, user.field, etc.)
+            // Only match if it looks like a real domain with known TLD patterns
+            const domainParts = url.split('.');
+            if (domainParts.length === 2) {
+                const [domain, tld] = domainParts;
+                // Skip if both parts are common words/properties (not domain-like)
+                const commonWords = ['user', 'password', 'email', 'name', 'id', 'data', 'file', 'image', 'text', 'value', 'item', 'object', 'element', 'node', 'field', 'property', 'method', 'function', 'class', 'type', 'size', 'length', 'width', 'height'];
+                if (commonWords.includes(domain.toLowerCase()) || commonWords.includes(tld.toLowerCase())) {
+                    return url;
+                }
+                // Also skip if TLD is too long (real TLDs are typically 2-4 chars)
+                if (tld.length > 6) {
+                    return url;
+                }
+            }
+            
+            let href = url;
+            
+            // Add protocol if missing
+            if (!url.match(/^https?:\/\//)) {
+                href = 'http://' + url;
+            }
+            
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="message-link">${url}</a>`;
+        });
+    }
+
+    // Function to process auto-linking on specific elements
+    function processAutoLinking(container) {
+        const messageContents = container.querySelectorAll('.message__bubble');
+        messageContents.forEach(function(bubble) {
+            if (!bubble.querySelector('img') && !bubble.querySelector('a')) {
+                bubble.innerHTML = autoLinkText(bubble.innerHTML);
+            }
+        });
+    }
+
+    // Apply to existing messages when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        processAutoLinking(document);
+    });
+
+    // Apply to new messages as they arrive - improved detection
+    const linkObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        // Check if the node itself is a message or contains messages
+                        if (node.classList && node.classList.contains('message')) {
+                            const bubble = node.querySelector('.message__bubble');
+                            if (bubble && !bubble.querySelector('img') && !bubble.querySelector('a')) {
+                                bubble.innerHTML = autoLinkText(bubble.innerHTML);
+                            }
+                        } else {
+                            // Check for messages within the added node
+                            processAutoLinking(node);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    // Start observing the chat messages container for auto-linking
+    const chatMessagesForLinks = document.querySelector('.chat-messages__list');
+    if (chatMessagesForLinks) {
+        linkObserver.observe(chatMessagesForLinks, { childList: true, subtree: true });
+    }
+
     let wasAtBottom = true; // Track if user was at bottom before new content
     let justSentMessage = false; // Track if this client just sent a message
     
@@ -145,6 +236,10 @@
 
     // Scroll when new messages arrive via WebSocket
     document.body.addEventListener('htmx:wsAfterMessage', function() {
+        // Process auto-linking for any new messages
+        setTimeout(function() {
+            processAutoLinking(document.getElementById('chat_messages'));
+        }, 10);
         waitForImagesAndMaybeScroll(wasAtBottom);
         justSentMessage = false; // Reset after handling
     });
@@ -155,6 +250,11 @@
             e.preventDefault();
             return false;
         }
+        justSentMessage = true;
+    });
+
+    // Always scroll to bottom after sending a file attachment from this client
+    document.getElementById('chat_file_form').addEventListener('submit', function(e) {
         justSentMessage = true;
     });
 
@@ -213,6 +313,9 @@
                         while (newMessages.length > 0) {
                             chatMessages.insertBefore(newMessages[0], chatMessages.firstChild);
                         }
+
+                        // Process auto-linking for the newly loaded messages
+                        processAutoLinking(chatMessages);
 
                         // Maintain scroll position
                         const newScrollHeight = chatContainer.scrollHeight;

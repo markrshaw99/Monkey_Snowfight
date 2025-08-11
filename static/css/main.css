@@ -568,6 +568,8 @@ h1 {
     font-size: 2.25rem;
     line-height: 2.5rem;
     font-weight: 700;
+    text-align: center;
+    color: var(--orange-1);
 }
 
 h2 {
@@ -592,7 +594,7 @@ p {
 .button, button, [type='submit'], [type='button'] {
     cursor: pointer;
     border-radius: 0.5rem;
-    background-color: rgb(79 70 229);
+    background-color: var(--orange-1);
     font-weight: 700;
     color: rgb(255 255 255);
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -606,7 +608,8 @@ p {
 }
 
 .button:hover, button:hover, [type='submit']:hover, [type='button']:hover {
-    background-color: rgb(67 56 202);
+    background-color: var(--blue-font);
+    color: var(--orange-1);
 }
 
 .button:active, button:active, [type='submit']:active, [type='button']:active {
@@ -639,6 +642,23 @@ p {
 
 /* New semantic button classes */
 .btn {
+    cursor: pointer;
+    border-radius: 0.5rem;
+    background-color: rgb(255, 105, 0);
+    font-weight: 500;
+    color: rgb(255 255 255);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    border: none;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-settings {
     cursor: pointer;
     border-radius: 0.5rem;
     background-color: rgb(255, 105, 0);
@@ -691,19 +711,19 @@ p {
 /* Layout containers */
 .container {
     width: 100%;
-    max-width: 40rem;
+    max-width: 48rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: auto;
-    padding: 0;
+    padding: 1rem;
 }
 
 .content-box {
     background-color: white;
     border-radius: 1rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    padding: 2rem;
+    padding: 1rem;
     margin: 3rem auto;
     width: 100%;
 }
@@ -757,6 +777,24 @@ html::-webkit-scrollbar {
 
 .chat-header-display-name {
     text-decoration: none !important;
+}
+
+/* Message link styling */
+.message-link {
+    color: #2563eb !important;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    padding: 2px 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.message-link:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    text-decoration: none;
+    border-radius: 6px;
 }
 
 /* Chat messages */
@@ -830,7 +868,7 @@ html::-webkit-scrollbar {
     border-top-right-radius: 0.5rem;
     border-top-left-radius: 0.5rem;
     border-bottom-left-radius: 0.5rem;
-    text-align: right;
+    text-align: left;
 
 }
 
@@ -1149,15 +1187,15 @@ html::-webkit-scrollbar {
     width: 100%;
     font-size: 0.875rem;
     text-align: left;
-    color: #6b7280;
+    color: var(--blue-font);
     border-collapse: collapse;
 }
 
 .settings-table th {
     padding: 1rem 0 0.25rem 0;
     font-size: 1rem;
-    font-weight: bold;
-    color: #111827;
+    font-weight: 500;
+    color: var(--blue-font);
 }
 
 .settings-table td {
@@ -1170,16 +1208,14 @@ html::-webkit-scrollbar {
 
 .settings-link {
     font-weight: 500;
-    color: #2563eb;
     text-decoration: none;
+    width: 100px;
+    text-align: center;
 }
 
-.settings-link:hover {
-    text-decoration: underline;
-}
 
 .settings-link--danger {
-    color: #dc2626;
+    background-color: #dc2626;
 }
 
 .status-verified {
@@ -1187,7 +1223,7 @@ html::-webkit-scrollbar {
 }
 
 .status-unverified {
-    color: #f59e0b;
+    color: var(--orange-1);
 }
 
 /* Edit member list */
