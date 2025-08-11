@@ -8,7 +8,7 @@
     <h1>Login</h1>
     <p>
         If you have not created an account yet, then please
-    <a href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}">sign up</a> first.
+    <a class="page-link" href="{% url 'account_signup' %}?next={% url 'profile-onboarding' %}">sign up</a> first.
     </p>
     {% url 'account_login' as login_url %}
     {% element form form=form method="post" action=login_url tags="entrance,login" %}
@@ -23,9 +23,11 @@
             {% endif %}
         {% endslot %}
         {% slot actions %}
-            {% element button type="submit" tags="prominent,login" %}
-                {% trans "Sign In" %}
-            {% endelement %}
+            <div class="center-me">
+                {% element button type="submit" tags="prominent,login" %}
+                    {% trans "Sign In" %}
+                {% endelement %}
+            </div>
         {% endslot %}
     {% endelement %}
     {% if SOCIALACCOUNT_ENABLED %}
