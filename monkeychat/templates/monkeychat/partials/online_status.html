@@ -1,7 +1,11 @@
 <div id="online-user-count">
     {% if online_users %}
-    <span class="header-online-user-count">
+    <span class="btn btn-header-count header-online-user-count">
         {{ online_users.count }} online
+    </span>
+    {% else %}
+    <span class="btn btn-header-count no-users-online header-online-user-count">
+        0 online
     </span>
     {% endif %}
 </div>

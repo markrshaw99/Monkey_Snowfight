@@ -232,22 +232,179 @@ class CustomConfirmEmailView(ConfirmEmailView):
 
 ### **Profile Onboarding System**
 
-#### **Enhanced Profile Model with Default Avatar**
+### **Enhanced Profile Model with Dual Avatar System**
 ```python
-@property
-def avatar(self):
-    if self.image:
-        return self.image.url
-    return f'{settings.STATIC_URL}images/avatar.png'  # Default avatar for all new users
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = CloudinaryField('image', null=True, blank=True)
+    default_avatar = models.CharField(max_length=50, null=True, blank=True)  # Store default avatar selection
+    displayname = models.CharField(max_length=20, null=True, blank=True)
+    info = models.TextField(null=True, blank=True)
+    
+    @property
+    def avatar(self):
+        # Priority: Custom uploaded image > Default avatar selection > Fallback avatar
+        if self.image:
+            return self.image.url
+        elif self.default_avatar:
+            return f'{settings.STATIC_URL}images/defaultAvatars/{self.default_avatar}'
+        return f'{settings.STATIC_URL}images/avatar.png'
+```
+
+### **Advanced Default Avatar System**
+
+#### **Avatar Selection Infrastructure**
+The system provides 24 pre-designed avatars organized in gender-specific folders:
+
+```
+static/images/defaultAvatars/
+├── male/
+│   ├── maleavatar_01.png
+│   ├── maleavatar_02.png
+│   └── ... (12 total male avatars)
+├── female/
+│   ├── femaleavatar_01.png
+│   ├── femaleavatar_02.png
+│   └── ... (12 total female avatars)
+├── symbol_male.png      # Gender toggle icon
+├── symbol_female.png    # Gender toggle icon
+└── cycle.png           # Cycle button icon
+```
+
+#### **Dual-Control Avatar Selection UI**
+```html
+<div class="profile">
+    <!-- Gender Toggle Button (Top-Left) -->
+    <button type="button" id="gender-toggle" class="avatar-control avatar-control--gender">
+    </button>
+    
+    <!-- Cycle Button (Top-Right) -->
+    <button type="button" id="avatar-cycle" class="avatar-control avatar-control--cycle">
+    </button>
+    
+    <div class="avatar-container">
+        <img id="avatar" class="profile__avatar" src="{{ user.profile.avatar }}" />
+    </div>
+    
+    <div class="avatar-info">
+        <span id="avatar-status">Male</span>  <!-- Dynamic status display -->
+    </div>
+</div>
+```
+
+#### **Interactive Avatar Selection Features**
+- **🚻 Gender Toggle**: Top-left button switches between male/female avatar sets
+- **🔄 Cycle Button**: Top-right button cycles through 1-12 avatars within current gender
+- **👁️ Live Preview**: Avatar updates instantly as user makes selections
+- **📊 Status Display**: Shows current selection ("Male", "Female", or "Custom profile image")
+- **🔄 Seamless Integration**: Works alongside existing custom image upload system
+
+#### **Advanced JavaScript Avatar Management**
+```javascript
+class AvatarSelector {
+    constructor() {
+        this.currentGender = 'male';
+        this.currentIndex = 1;
+        this.isUsingDefault = false;
+    }
+    
+    toggleGender() {
+        // Switches between male/female and resets to avatar #1
+        this.currentGender = this.currentGender === 'male' ? 'female' : 'male';
+        this.currentIndex = 1;
+        this.selectDefaultAvatar();
+    }
+    
+    cycleAvatar() {
+        // Cycles through 1-12 avatars with wraparound
+        this.currentIndex = this.currentIndex >= 12 ? 1 : this.currentIndex + 1;
+        this.selectDefaultAvatar();
+    }
+    
+    selectDefaultAvatar() {
+        // Updates form field and display
+        const avatarPath = `${this.currentGender}/${this.currentGender}avatar_${this.currentIndex.toString().padStart(2, '0')}.png`;
+        this.avatarImg.src = `/static/images/defaultAvatars/${avatarPath}`;
+        this.defaultAvatarField.value = avatarPath;
+        this.fileInput.value = ''; // Clear custom upload
+        this.updateDisplay();
+    }
+}
+```
+
+#### **Smart Form Integration**
+```python
+class ProfileForm(ModelForm):
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        
+        # Smart field priority management
+        has_new_image = bool(self.files.get('image'))
+        has_default_avatar = bool(profile.default_avatar)
+        
+        # If default avatar selected and no new image uploaded
+        if has_default_avatar and not has_new_image:
+            profile.image = None  # Clear existing uploaded image
+        # If new image uploaded, clear default avatar selection
+        elif has_new_image:
+            profile.default_avatar = ''  # Clear default selection
+        
+        if commit:
+            profile.save()
+        return profile
+```
+
+#### **CSS Styling for Avatar Controls**
+```css
+.avatar-control {
+    position: absolute;
+    width: 4.5rem;
+    height: 4.5rem;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.avatar-control--gender {
+    top: 1rem;
+    left: 1rem;
+    background-image: url('/static/images/defaultAvatars/symbol_male.png');
+    background-size: 75%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.avatar-control--cycle {
+    top: 1rem;
+    right: 1rem;
+    background-image: url('/static/images/defaultAvatars/cycle.png');
+    background-size: 75%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.avatar-control:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
 ```
 
 #### **Onboarding Flow Features**
 - **Automatic Profile Creation**: Created via Django signals on user registration
-- **Default Avatar System**: All users start with `static/images/avatar.png`
+- **Advanced Avatar System**: Dual-control selection with 24 default avatars (12 male + 12 female)
+- **Gender Toggle**: Top-left button to switch between male/female avatar sets
+- **Avatar Cycling**: Top-right button to cycle through 1-12 avatars within current gender
+- **Live Preview**: Real-time avatar updates during selection process
+- **Smart Status Display**: Dynamic text showing "Male", "Female", or "Custom profile image"
 - **Onboarding Parameter**: `?onboarding=true` triggers welcome messaging
 - **Custom Display Names**: Users can set personalized display names
 - **Profile Information**: Rich text bio/info section
-- **Avatar Upload**: Cloudinary integration for custom profile pictures
+- **Avatar Upload**: Cloudinary integration for custom profile pictures with intelligent field management
 
 ### **Enhanced WebSocket Authentication**
 
@@ -705,6 +862,39 @@ if not body:
 
 ## 🎨 **User Interface Components**
 
+### **🎨 Advanced Avatar Selection System**
+
+The profile editing interface features a sophisticated dual-control avatar selection system:
+
+```
+┌─────────────────────────────────────────────────┐
+│ [♂]  Edit your Profile                    [↻]  │ ← Gender toggle (top-left) & Cycle (top-right)
+│                                                 │
+│               🐒 [Large Avatar Display]         │ ← Live preview updates instantly
+│                     Male                        │ ← Dynamic status text
+│                                                 │
+│                   Admin                         │
+│                @markrshaw99                     │
+│                                                 │
+│ Profile Image                                   │
+│ [Upload Image] [filename.jpg]                   │ ← Custom upload still available
+│                                                 │
+│ Display Name: [________________]                │
+│ Info: [________________________]               │
+│       [________________________]               │
+│                                                 │
+│           [Submit]    [Cancel]                  │
+└─────────────────────────────────────────────────┘
+```
+
+#### **Avatar Selection Features**
+- **🚻 Gender Toggle**: Click top-left button to switch between male/female avatar sets
+- **🔄 Cycle Button**: Click top-right button to cycle through 12 avatars within current gender
+- **👁️ Live Preview**: Avatar image updates instantly during selection
+- **📊 Smart Status**: Displays "Male", "Female", or "Custom profile image"
+- **💾 Intelligent Saving**: Automatically manages conflicts between default and custom avatars
+- **🔄 Seamless Integration**: Works alongside existing custom image upload functionality
+
 ### **Header Navigation**
 ```html
 ┌─────────────────────────────────────────────────┐
@@ -1107,8 +1297,11 @@ WS /ws/online-status/
 - [x] Professional branded email templates (HTML + text)
 - [x] Automatic login after email verification
 - [x] Profile onboarding flow with custom messaging
-- [x] Default avatar system for all new users
-- [x] Enhanced Profile model with display names and bio
+- [x] Advanced dual-control avatar selection system (24 default avatars)
+- [x] Gender-based avatar organization (12 male + 12 female)
+- [x] Interactive avatar controls with live preview
+- [x] Smart form integration preventing field conflicts
+- [x] Enhanced Profile model with dual avatar support
 - [x] Password strength validation (Django validators)
 - [x] WebSocket authentication fixes and session management
 
@@ -1119,6 +1312,11 @@ WS /ws/online-status/
 - [x] Custom link styling with hover effects
 - [x] Browser autofill override for consistent input styling
 - [x] Responsive design improvements for mobile devices
+- [x] Advanced avatar selection interface with dual controls
+- [x] Live preview avatar updates during selection
+- [x] CSS background-image implementation for reliable icon display
+- [x] Smooth button hover effects and transitions
+- [x] Dynamic status text updates for avatar selection
 
 ### **✅ Technical Infrastructure**
 - [x] Gmail SMTP integration for production email delivery
@@ -1126,6 +1324,11 @@ WS /ws/online-status/
 - [x] Django Sites framework for proper domain management
 - [x] Cloudinary integration for profile avatar uploads
 - [x] Enhanced WebSocket consumer error handling
+- [x] Advanced database model with dual avatar field support
+- [x] Smart form validation preventing avatar field conflicts
+- [x] JavaScript class-based avatar selection management
+- [x] CSS custom properties for consistent avatar control styling
+- [x] File input clearing and blob URL management for avatar switching
 
 ---
 

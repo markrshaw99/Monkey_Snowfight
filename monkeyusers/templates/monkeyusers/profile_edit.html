@@ -1,4 +1,5 @@
 {% extends 'layouts/box.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -10,7 +11,26 @@
 {% endif %}
 
 <div class="profile">
-    <img id="avatar" class="profile__avatar" src="{{ user.profile.avatar }}" />
+    <!-- Gender Toggle Button (Top-Left of Profile) -->
+    <button type="button" id="gender-toggle" class="avatar-control avatar-control--gender" title="Switch Gender">
+    </button>
+    
+    <!-- Cycle Button (Top-Right of Profile) -->
+    <button type="button" id="avatar-cycle" class="avatar-control avatar-control--cycle" title="Next Avatar">
+    </button>
+    
+    <div class="avatar-selector">
+        <!-- Avatar display -->
+        <div class="avatar-container">
+            <img id="avatar" class="profile__avatar" src="{{ user.profile.avatar }}" />
+        </div>
+        
+        <!-- Default avatar options info -->
+        <div class="avatar-info">
+            <span id="avatar-status">Custom image</span>
+        </div>
+    </div>
+    
     <div>
         <h1 id="displayname" class="profile__name">{{ user.profile.displayname|default:"" }}</h1>
         <div class="profile__username">@{{ user.username }}</div>
@@ -23,7 +43,7 @@
     <div class="form__field">
         <label>Profile Image</label>
         <div style="margin-top: 0.5rem;">
-            <label for="{{ form.image.id_for_label }}" class="btn btn--small" style="margin-bottom:0;">Choose Image</label>
+            <label for="{{ form.image.id_for_label }}" class="btn btn--small" style="margin-bottom:0;">Upload Image</label>
             <input type="file" name="{{ form.image.name }}" id="{{ form.image.id_for_label }}" style="display:none;" accept="image/*">
             <span id="image-file-name" style="margin-left:0.5rem; font-size:0.95em; color:#6b7280;"></span>
         </div>
@@ -31,7 +51,7 @@
     
     <!-- Render all other fields automatically (this preserves any fields I might have missed) -->
     {% for field in form %}
-        {% if field.name != 'image' %}
+        {% if field.name != 'image' and field.name != 'default_avatar' %}
             <div class="form__field">
                 {{ field.label_tag }}
                 {{ field }}
@@ -45,6 +65,9 @@
             </div>
         {% endif %}
     {% endfor %}
+    
+    <!-- Hidden field for default avatar selection -->
+    {{ form.default_avatar }}
     
     <div class="form__actions">
         {% if onboarding %}
@@ -61,35 +84,137 @@
 
 
 <script>
-    
-    // This updates the avatar preview
-    const fileInput = document.querySelector('input[type="file"]');
-
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        const image = document.querySelector('#avatar');
-        const fileNameSpan = document.getElementById('image-file-name');
-
-        if (file && file.type.includes('image')) {
-            const url = URL.createObjectURL(file);
-            image.src = url;
-            // Show selected filename
-            fileNameSpan.textContent = file.name;
-        } else if (file) {
-            // If file selected but not an image
-            fileNameSpan.textContent = file.name + ' (not an image)';
-        } else {
-            // No file selected
-            fileNameSpan.textContent = '';
+    // Avatar Selection System
+    class AvatarSelector {
+        constructor() {
+            this.currentGender = 'male';  // Default starting gender
+            this.currentIndex = 1;       // Default starting avatar (1-12)
+            this.isUsingDefault = false; // Track if using default avatar
+            
+            this.avatarImg = document.getElementById('avatar');
+            this.genderToggle = document.getElementById('gender-toggle');
+            this.avatarCycle = document.getElementById('avatar-cycle');
+            this.avatarStatus = document.getElementById('avatar-status');
+            this.defaultAvatarField = document.getElementById('id_default_avatar');
+            this.fileInput = document.querySelector('input[type="file"]');
+            this.fileNameSpan = document.getElementById('image-file-name');
+            
+            this.init();
         }
-    });
+        
+        init() {
+            // Check if user already has a default avatar selected
+            if (this.defaultAvatarField.value) {
+                this.parseCurrentDefault();
+                this.isUsingDefault = true;
+                this.updateDisplay();
+            } else {
+                // If no default avatar is set, user is using a custom image or no image
+                this.isUsingDefault = false;
+                this.updateDisplay();
+            }
+            
+            // Bind events
+            this.genderToggle.addEventListener('click', () => this.toggleGender());
+            this.avatarCycle.addEventListener('click', () => this.cycleAvatar());
+            this.fileInput.addEventListener('change', (e) => this.handleFileUpload(e));
+        }
+        
+        parseCurrentDefault() {
+            // Parse existing default avatar like "male/maleavatar_05.png"
+            const current = this.defaultAvatarField.value;
+            if (current) {
+                if (current.includes('male/')) {
+                    this.currentGender = 'male';
+                    const match = current.match(/maleavatar_(\d+)\.png/);
+                    if (match) this.currentIndex = parseInt(match[1]);
+                } else if (current.includes('female/')) {
+                    this.currentGender = 'female';
+                    const match = current.match(/femaleavatar_(\d+)\.png/);
+                    if (match) this.currentIndex = parseInt(match[1]);
+                }
+            }
+        }
+        
+        toggleGender() {
+            this.currentGender = this.currentGender === 'male' ? 'female' : 'male';
+            this.currentIndex = 1; // Reset to first avatar of new gender
+            this.selectDefaultAvatar();
+        }
+        
+        cycleAvatar() {
+            this.currentIndex = this.currentIndex >= 12 ? 1 : this.currentIndex + 1;
+            this.selectDefaultAvatar();
+        }
+        
+        selectDefaultAvatar() {
+            this.isUsingDefault = true;
+            const avatarPath = `${this.currentGender}/${this.currentGender}avatar_${this.currentIndex.toString().padStart(2, '0')}.png`;
+            
+            // Update avatar display
+            this.avatarImg.src = `/static/images/defaultAvatars/${avatarPath}`;
+            
+            // Update form field
+            this.defaultAvatarField.value = avatarPath;
+            
+            // IMPORTANT: Clear file input completely to ensure no image is submitted
+            this.fileInput.value = '';
+            this.fileInput.files = null;
+            this.fileNameSpan.textContent = '';
+            
+            // Also clear any temporary object URLs
+            if (this.avatarImg.src.startsWith('blob:')) {
+                URL.revokeObjectURL(this.avatarImg.src);
+            }
+            
+            this.updateDisplay();
+        }
+        
+        updateDisplay() {
+            // Update gender icon background
+            const iconSrc = this.currentGender === 'male' 
+                ? '/static/images/defaultAvatars/symbol_male.png'
+                : '/static/images/defaultAvatars/symbol_female.png';
+            this.genderToggle.style.backgroundImage = `url('${iconSrc}')`;
+            
+            // Update status text
+            if (this.isUsingDefault) {
+                this.avatarStatus.textContent = `${this.currentGender.charAt(0).toUpperCase() + this.currentGender.slice(1)}`;
+            } else {
+                this.avatarStatus.textContent = 'Custom profile image';
+            }
+        }
+        
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            
+            if (file && file.type.includes('image')) {
+                // Switch to custom image mode
+                this.isUsingDefault = false;
+                this.defaultAvatarField.value = ''; // Clear default avatar selection
+                
+                const url = URL.createObjectURL(file);
+                this.avatarImg.src = url;
+                this.fileNameSpan.textContent = file.name;
+                
+                this.updateDisplay();
+            } else if (file) {
+                this.fileNameSpan.textContent = file.name + ' (not an image)';
+            } else {
+                this.fileNameSpan.textContent = '';
+            }
+        }
+    }
+    
+    // Initialize avatar selector
+    const avatarSelector = new AvatarSelector();
+    
+    // Display name preview functionality
+    const displayNameInput = document.getElementById('id_displayname');
+    const displayNameOutput = document.getElementById('displayname');
 
-    // This updates the display name preview
-    const display_nameInput = document.getElementById('id_displayname');
-    const display_nameOutput = document.getElementById('displayname');
-
-    display_nameInput.addEventListener('input', (event) => {
-        display_nameOutput.innerText = event.target.value;
+    displayNameInput.addEventListener('input', (event) => {
+        displayNameOutput.innerText = event.target.value;
     });
 
 </script>
