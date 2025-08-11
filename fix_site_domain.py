@@ -17,8 +17,8 @@ try:
     old_domain = site.domain
     old_name = site.name
     
-    # Update to your actual Heroku domain
-    site.domain = 'monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com'
+    # Update to match Gmail sender to avoid [example.com] in subject
+    site.domain = 'gmail.com'  # Match the email sender domain
     site.name = 'Monkey Snowfight'
     site.save()
     
