@@ -23,16 +23,24 @@ def profile_view(request, username=None):
 def profile_edit_view(request):
     form = ProfileForm(instance=request.user.profile)  
     
+    # Check if this is onboarding (from email verification)
+    onboarding = request.GET.get('onboarding', False)
+    
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')
+            messages.success(request, "Profile updated successfully!")
+            # If this was onboarding, redirect to home, otherwise go back to profile
+            if onboarding:
+                messages.success(request, "Welcome to Monkey Snowfight! Your profile is all set up!")
+                return redirect('home')
+            else:
+                return redirect('profile')
         
+    # Also check the path for existing onboarding logic
     if request.path == reverse('profile-onboarding'):
         onboarding = True
-    else:
-        onboarding = False
       
     return render(request, 'monkeyusers/profile_edit.html', { 'form':form, 'onboarding':onboarding })
 

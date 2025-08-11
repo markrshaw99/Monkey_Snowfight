@@ -240,3 +240,7 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1', 'password2']
 ACCOUNT_RATE_LIMITS = {
     'login_failed': '5/5m',  # 5 attempts per 5 minutes
 }
+
+# Redirect to profile edit after email confirmation for onboarding
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/profile/edit/?onboarding=true'
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/profile/edit/?onboarding=true'
