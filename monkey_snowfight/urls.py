@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from monkeyusers.views import profile_view
+from monkeyusers.views import profile_view, CustomConfirmEmailView
 from monkeyhome.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Custom email confirmation view BEFORE allauth URLs
+    path('accounts/confirm-email/<str:key>/', CustomConfirmEmailView.as_view(), name='account_confirm_email'),
     path('accounts/', include('allauth.urls')),
     path('', welcome, name='welcome'),
     path('chat/', include('monkeychat.urls')),

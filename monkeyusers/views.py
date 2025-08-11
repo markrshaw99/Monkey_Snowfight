@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from allauth.account.utils import send_email_confirmation
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout
+from django.contrib.auth import logout, login
 from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.contrib import messages
+from allauth.account.views import ConfirmEmailView
+from allauth.account.models import EmailConfirmation
+from django.http import Http404
 from .forms import *
 
 def profile_view(request, username=None):
@@ -120,3 +123,33 @@ def profile_delete_view(request):
         return redirect('home')
     
     return render(request, 'monkeyusers/profile_delete.html')
+
+
+class CustomConfirmEmailView(ConfirmEmailView):
+    """Custom email confirmation view that ensures user gets logged in"""
+    
+    def post(self, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+            # Get the user from the email confirmation
+            user = self.object.email_address.user
+            
+            # Confirm the email
+            self.object.confirm(self.request)
+            
+            # Log in the user
+            login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+            
+            # Add success message
+            messages.success(self.request, f"Welcome {user.username}! Your email has been verified.")
+            
+            # Redirect to profile edit with onboarding
+            return redirect('/profile/edit/?onboarding=true')
+            
+        except Exception as e:
+            messages.error(self.request, "There was an error confirming your email.")
+            return redirect('account_login')
+    
+    def get(self, *args, **kwargs):
+        # For GET requests, do the same as POST
+        return self.post(*args, **kwargs)
