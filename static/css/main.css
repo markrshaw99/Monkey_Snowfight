@@ -1419,6 +1419,21 @@ input[type=file] {
     padding: 1rem 1.25rem;
 }
 
+/* Override browser autofill styling */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgba(224, 242, 245, 1) inset !important;
+    -webkit-text-fill-color: var(--blue-font) !important;
+    background-color: rgba(224, 242, 245, 1) !important;
+}
+
+input:-internal-autofill-selected {
+    background-color: rgba(224, 242, 245, 1) !important;
+    color: var(--blue-font) !important;
+}
+
 .errorlist li {
     margin-bottom: 0.5rem;
     border-left-width: 4px;
