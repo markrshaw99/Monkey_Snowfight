@@ -1,4 +1,4 @@
-# 🐒 Monkey Snowfight - Real-Time Chat Community
+# Monkey Snowfight - Real-Time Chat and Multiplayer Gaming Community
 
 ![Monkey Snowfight Logo](static/images/logo/Monkey_Snowfight.svg)
 
