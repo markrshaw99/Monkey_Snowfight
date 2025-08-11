@@ -138,7 +138,37 @@
         const messageContents = container.querySelectorAll('.message__bubble');
         messageContents.forEach(function(bubble) {
             if (!bubble.querySelector('img') && !bubble.querySelector('a')) {
-                bubble.innerHTML = autoLinkText(bubble.innerHTML);
+                // Find all text nodes and process them individually
+                const walker = document.createTreeWalker(
+                    bubble,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+                
+                textNodes.forEach(function(textNode) {
+                    const originalText = textNode.textContent;
+                    const linkedText = autoLinkText(originalText);
+                    
+                    if (originalText !== linkedText) {
+                        // Create a temporary container to parse the HTML
+                        const temp = document.createElement('div');
+                        temp.innerHTML = linkedText;
+                        
+                        // Replace the text node with the parsed content
+                        const parent = textNode.parentNode;
+                        while (temp.firstChild) {
+                            parent.insertBefore(temp.firstChild, textNode);
+                        }
+                        parent.removeChild(textNode);
+                    }
+                });
             }
         });
     }
