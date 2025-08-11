@@ -1704,8 +1704,8 @@ input[type=file] {
         padding: 0.5rem;
     }
     .profile__avatar {
-        width: 8rem;
-        height: 8rem;
+        width: 6rem;
+        height: 6rem;
         margin-bottom: 0.5rem;
     }
     .content-box {
