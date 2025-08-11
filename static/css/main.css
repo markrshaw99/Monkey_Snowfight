@@ -1712,4 +1712,7 @@ input[type=file] {
         padding: 0.5rem;
         margin: 0;
     }
+    .chat-wrapper {
+        max-height: 90%;
+    }
 }
