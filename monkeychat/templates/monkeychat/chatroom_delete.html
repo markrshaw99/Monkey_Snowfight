@@ -1,7 +1,7 @@
 {% extends 'layouts/box.html' %}
 
 {% block content %}
-
+<div class="content-box-delete-chat">
 <h1>Delete this chatroom?</h1>
 
 <h2>"{{ chat_group.groupchat_name }}"</h2>
@@ -13,6 +13,6 @@
         <a class="btn btn--gray" href="{{ request.META.HTTP_REFERER }}">No, go back</a>
     </div>
 </form>
-
+</div>
 {% endblock %}
 

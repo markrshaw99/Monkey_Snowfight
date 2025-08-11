@@ -13,7 +13,7 @@
             <td id="email-address">
                 {% if user.email %}{{ user.email }}{% else %}No Email{% endif %}
             </td>
-            <td>
+            <td class="settings-right-column">
                 <a id="email-edit" class="btn settings-link"
                     hx-get="{% url 'profile-emailchange' %}"
                     hx-target="#email-address"
@@ -33,9 +33,9 @@
                 <span class="status-unverified">Not verified</span>
                 {% endif %}
             </td>
-            <td>
+            <td class="settings-right-column">
                 <a href="{% url 'profile-emailverify' %}" class="btn settings-link">
-                    {% if not user.emailaddress_set.first.verified %}Verify{% endif %}
+                    {% if not user.emailaddress_set.first.verified %}Verify{% else %}✓{% endif %}
                 </a>
             </td>
         </tr>
@@ -47,7 +47,7 @@
             <td id="username">
                 {{ user.username }}
             </td>
-            <td>
+            <td class="settings-right-column">
                 <a id="username-edit" class="btn settings-link"
                     hx-get="{% url 'profile-usernamechange' %}"
                     hx-target="#username"
@@ -64,7 +64,7 @@
             <td>
                 Once deleted, account is gone. Forever.
             </td>
-            <td>
+            <td class="settings-right-column">
                 <a href="{% url 'profile-delete' %}" class="btn settings-link settings-link--danger">
                     Delete
                 </a>

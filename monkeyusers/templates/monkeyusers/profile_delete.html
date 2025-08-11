@@ -1,16 +1,16 @@
 {% extends 'layouts/box.html' %}
 
 {% block content %}
-
+<div class="content-box-delete-chat">
 <h1>Delete Account</h1>
 <p>Are you sure you want to delete your account?</p>
 
 <form method='POST' class="form">
     {% csrf_token %}
-    <div class="form__actions">
+    <div class="form__actions form__actions--centered">
         <button type="submit" class="btn btn--red">Yes, I want to delete my account</button>
         <a class="btn btn--gray" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
     </div>
 </form>
-
+</div>
 {% endblock %}

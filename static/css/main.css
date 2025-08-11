@@ -256,6 +256,7 @@
     max-width: 48rem;
     margin: 5rem auto;
     padding: 0.5rem;
+    align-items: center;
 }
 
 .chat-header {
@@ -263,6 +264,7 @@
     justify-content: space-between;
     align-items: center;
     margin: 0 0.25rem;
+    width: 100%;
 
 }
 
@@ -283,6 +285,7 @@
 
 .chat-window {
     height: 100%;
+    width: 100%;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -311,6 +314,7 @@
     background: rgba(224, 242, 245, 1);
     border-radius: 0.5rem;
     box-shadow: inset 0 0 0 4px rgb(175,220,230);
+    margin-bottom: 0.1rem;
 }
 
 .chat-minimize {
@@ -682,6 +686,27 @@ p {
 .btn:active {
     transform: scale(0.9);
 }
+.btn-leave {
+    max-width: 50%;
+    background-color: rgb(239 68 68);
+    padding: 0rem 1rem;
+    margin: 0.25rem 0.25rem 0rem 0.25rem;
+    font-size: 1rem;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+.btn-leave:hover {
+    background-color: rgb(158, 3, 3);
+    color: white;
+}
+
+.btn-delete-room {
+    background-color: rgb(239 68 68);
+}
+.btn-delete-room:hover {
+    background-color: rgb(158, 3, 3);
+    color: white;
+}
 
 .btn--red {
     background-color: rgb(239 68 68);
@@ -689,6 +714,7 @@ p {
 
 .btn--red:hover {
     background-color: rgb(220 38 38);
+    color: white;
 }
 
 .btn--gray {
@@ -725,9 +751,16 @@ p {
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     padding: 1rem;
     margin: 3rem auto;
-    width: 100%;
+    width: fit-content;
+    max-height: 100%;
 }
 
+.content-box-delete-chat, .content-box-logout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
 
 
 html {
@@ -893,7 +926,6 @@ html::-webkit-scrollbar {
     border-radius: 50%;
     object-fit: cover;
     position: relative;
-    margin-top: 2.25rem;
 }
 
 .message__avatar-container {
@@ -903,7 +935,6 @@ html::-webkit-scrollbar {
 .message__author-details {
     font-size: 0.875rem;
     font-weight: 500;
-    padding: 0.25rem 0;
     margin-left: 0.5rem;
 }
 
@@ -941,7 +972,7 @@ html::-webkit-scrollbar {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 5rem 1rem;
+    padding: 3rem 1rem;
     text-align: center;
 }
 
@@ -954,7 +985,7 @@ html::-webkit-scrollbar {
 }
 
 .profile__name {
-    margin-bottom: 0;
+    margin-bottom: 1rem;
 }
 
 .profile__username {
@@ -1076,6 +1107,9 @@ html::-webkit-scrollbar {
 }
 
 .modal__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
@@ -1123,6 +1157,7 @@ html::-webkit-scrollbar {
     display: flex;
     gap: 0.5rem;
     margin-top: 1rem;
+    justify-content: center;
 }
 
 /* Status indicators */
@@ -1185,6 +1220,7 @@ html::-webkit-scrollbar {
 /* Settings table */
 .settings-table {
     width: 100%;
+    table-layout: fixed;
     font-size: 0.875rem;
     text-align: left;
     color: var(--blue-font);
@@ -1200,10 +1236,19 @@ html::-webkit-scrollbar {
 
 .settings-table td {
     padding: 1rem 0 1rem 1rem;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 0;
 }
 
 .settings-table tr {
     border-bottom: 1px solid #e5e7eb;
+}
+
+.settings-right-column {
+    text-align: right;
+    padding-right: 1rem !important;
 }
 
 .settings-link {
@@ -1211,6 +1256,8 @@ html::-webkit-scrollbar {
     text-decoration: none;
     width: 100px;
     text-align: center;
+    margin-left: auto;
+    display: inline-block;
 }
 
 
@@ -1466,6 +1513,7 @@ input[type=file] {
     right: 0;
     z-index: 50;
     pointer-events: none;
+    text-align: center;
 }
 
 .message-alert {
@@ -1614,8 +1662,31 @@ input[type=file] {
     display: inline-block;
     vertical-align: middle;
   }
-  .chat-file-form button {
-    margin-top: 0.25rem;
+  
+  /* Settings table responsiveness */
+  .settings-table {
+    font-size: 0.75rem;
+  }
+  
+  .settings-table th {
+    padding: 0.5rem 0 0.25rem 0;
+    font-size: 0.875rem;
+  }
+  
+  .settings-table td {
+    padding: 0.5rem 0 0.5rem 0.5rem;
+  }
+  
+  .settings-right-column {
+    padding-right: 0.5rem !important;
+  }
+  
+  .settings-link {
+    width: auto;
+    min-width: 60px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
   }
 }
 
@@ -1623,4 +1694,22 @@ input[type=file] {
     .header__brand-section {
     display: none !important;
 }
+}
+
+@media (max-height: 850px) {
+    .mb-4 {
+        margin-bottom: 0;
+    }
+    .profile {
+        padding: 0.5rem;
+    }
+    .profile__avatar {
+        width: 6rem;
+        height: 6rem;
+        margin-bottom: 0.5rem;
+    }
+    .content-box {
+        padding: 0.5rem;
+        margin: 0;
+    }
 }

@@ -31,10 +31,10 @@
 
     <div class="form__actions">
         <button class="btn" type="submit">Update</button>
+        <a href="{% url 'chatroom-delete' chat_group.group_name %}" class="btn btn-delete-room">Delete Chatroom</a>
     </div>
 </form>
 
-<a href="{% url 'chatroom-delete' chat_group.group_name %}" class="settings-link settings-link--danger">Delete Chatroom</a>
 
 {% endblock %}
  

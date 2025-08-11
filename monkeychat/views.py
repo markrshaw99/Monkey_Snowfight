@@ -140,9 +140,23 @@ def chatroom_leave_view(request, chatroom_name):
         raise Http404("You are not a member of this chat room.")
     
     if request.method == 'POST':
-        chat_group.members.remove(request.user)
-        messages.success(request, "You have left the chat room.")
+        # For private chats, delete the entire chat when someone leaves
+        if chat_group.is_private:
+            chat_group.delete()
+            messages.success(request, "Private chat has been deleted.")
+        else:
+            # For group chats, just remove the user
+            chat_group.members.remove(request.user)
+            messages.success(request, "You have left the chat room.")
+        
         return redirect('home')
+    
+    # Handle GET requests - show confirmation page
+    context = {
+        'chat_group': chat_group,
+        'is_private': chat_group.is_private,
+    }
+    return render(request, 'monkeychat/chatroom_leave.html', context)
 
 
 @login_required

@@ -17,7 +17,34 @@
 </div>
 <form method="POST" enctype="multipart/form-data" class="form">
     {% csrf_token %}
-    {{ form.as_p }}
+    
+    <!-- Custom file input like chat -->
+    <div class="form__field">
+        <label>Profile Image</label>
+        <div style="margin-top: 0.5rem;">
+            <label for="{{ form.image.id_for_label }}" class="btn btn--small" style="margin-bottom:0;">Choose Image</label>
+            <input type="file" name="{{ form.image.name }}" id="{{ form.image.id_for_label }}" style="display:none;" accept="image/*">
+            <span id="image-file-name" style="margin-left:0.5rem; font-size:0.95em; color:#6b7280;"></span>
+        </div>
+    </div>
+    
+    <!-- Render all other fields automatically (this preserves any fields I might have missed) -->
+    {% for field in form %}
+        {% if field.name != 'image' %}
+            <div class="form__field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <ul class="form__error">
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    
     <div class="form__actions">
         <button class="btn" type="submit">Submit</button>
         {% if onboarding %}
@@ -33,20 +60,29 @@
 
 <script>
     
-    // This updates the avatar
+    // This updates the avatar preview
     const fileInput = document.querySelector('input[type="file"]');
 
     fileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    const image = document.querySelector('#avatar');
+        const file = event.target.files[0];
+        const image = document.querySelector('#avatar');
+        const fileNameSpan = document.getElementById('image-file-name');
 
-    if (file && file.type.includes('image')) {
-        const url = URL.createObjectURL(file);
-        image.src = url;
-    }
+        if (file && file.type.includes('image')) {
+            const url = URL.createObjectURL(file);
+            image.src = url;
+            // Show selected filename
+            fileNameSpan.textContent = file.name;
+        } else if (file) {
+            // If file selected but not an image
+            fileNameSpan.textContent = file.name + ' (not an image)';
+        } else {
+            // No file selected
+            fileNameSpan.textContent = '';
+        }
     });
 
-    // This updates the name
+    // This updates the display name preview
     const display_nameInput = document.getElementById('id_displayname');
     const display_nameOutput = document.getElementById('displayname');
 
