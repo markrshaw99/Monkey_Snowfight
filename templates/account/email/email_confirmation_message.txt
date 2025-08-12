@@ -1,6 +1,6 @@
 Hi {{ user.get_full_name|default:user.username }},
 
-Welcome to Monkey Snowfight! 🐒❄️
+Welcome to Monkey Snowfight!
 
 Thank you for signing up. To complete your registration and start playing, please verify your email address by clicking the link below:
 
@@ -8,12 +8,13 @@ Thank you for signing up. To complete your registration and start playing, pleas
 
 This verification link will expire in a few days, so please verify your email soon.
 
-If you didn't create an account with us, you can safely ignore this email.
+If you didn't create an account with us, you can safely ignore this email - they're not getting in.
 
-Welcome to the snowball fight!
+Welcome to the snowball fight and enjoy chatting whilst the game is still a work in progress!
 
 Best regards,
-The Monkey Snowfight Team
+
+The Monkey Snowfight Team (It's just me but I may as well be a team)
 
 ---
 This email was sent to {{ user.email }}. If you have any questions, please contact us.
