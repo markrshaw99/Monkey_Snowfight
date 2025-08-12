@@ -78,7 +78,7 @@ class ChatroomConsumer(WebsocketConsumer):
         self.send(text_data=html)
 
     def update_online_count(self):
-        online_count = self.chatroom.users_online.exclude(id=self.user.id).count()  # Exclude current user
+        online_count = self.chatroom.users_online.count() - 1  # Get actual count of users online
         event = {
                 'type': 'online_count_handler',
                 'online_count': online_count
