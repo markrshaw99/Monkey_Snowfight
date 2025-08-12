@@ -563,6 +563,7 @@ This project is created for educational purposes as part of the AI Augmented Ful
 - GitHub: [@markrshaw99](https://github.com/markrshaw99)
 - Project Repository: [Monkey_Snowfight](https://github.com/markrshaw99/Monkey_Snowfight)
 - Live Application: [https://monkeysnowfight.online](https://monkeysnowfight.online)
+- Backup Live Application: [https://monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com/](https://monkey-snowfight-game-and-chat-ce8d3c703935.herokuapp.com/)
 
 ---
 
